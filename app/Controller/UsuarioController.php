@@ -10,7 +10,6 @@
             $parametros = $request->getParsedBody();
 
             $nombre = $parametros['nombre'];
-            $apellido = $parametros['apellido'];
             $dni = $parametros['dni'];
             $puesto = $parametros['puesto'];
             $estado = $parametros['estado'];
@@ -18,7 +17,7 @@
             // Creamos el usuario
             $usr = new Usuario();
             $usr->nombre = $nombre;
-            $usr->apellido = $apellido;
+            $usr->fechaAlta = date("Y-m-d H:i:s");
             $usr->dni = $dni;
             $usr->puesto = $puesto;
             $usr->estado = $estado;

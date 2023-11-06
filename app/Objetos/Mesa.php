@@ -4,6 +4,10 @@
 
     class Mesa
     {
+        public const ESTADO_ESPERANDO = "Cliente esperando pedido";
+        public const ESTADO_COMIENDO = "Cliente comiendo";
+        public const ESTADO_PAGANDO = "Cliente pagando";
+        public const ESTADO_CERRADA = "Cerrada";
 
         public $id;
         public $codigo;
