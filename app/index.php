@@ -14,6 +14,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 require_once './BaseDatos/AccesoDatos.php';
 require_once './Controller/UsuarioController.php';
+require_once './Controller/ProductoController.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -36,6 +37,12 @@ $app->group('/usuarios', function (RouteCollectorProxy $group)
 {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
     $group->post('[/]', \UsuarioController::class . ':CargarUno');
+});
+
+$app->group('/productos', function (RouteCollectorProxy $group) 
+{
+    $group->get('[/]', \ProductoController::class . ':TraerTodos');
+    $group->post('[/]', \ProductoController::class . ':CargarUno');
 });
 
 $app->run();

@@ -9,17 +9,13 @@
         {
             $parametros = $request->getParsedBody();
 
-            $id_usuario = $parametros['id_usuario'];
-            $id_pedido = $parametros['id_pedido'];
             $nombre = $parametros['nombre'];
-            $tipo = $parametros['tipo$tipo'];
-            $precio = $parametros['precio$precio'];
-            $stock = $parametros['stock$stock'];
+            $tipo = $parametros['tipo'];
+            $precio = $parametros['precio'];
+            $stock = $parametros['stock'];
 
             // Creamos el Producto
             $prd = new Producto();
-            $prd->id_usuario = $id_usuario;
-            $prd->id_pedido = $id_pedido;
             $prd->nombre = $nombre;
             $prd->tipo = $tipo;
             $prd->precio = $precio;
