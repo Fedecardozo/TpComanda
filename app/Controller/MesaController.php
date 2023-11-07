@@ -9,13 +9,13 @@
         {
             $parametros = $request->getParsedBody();
 
-            $codigo = $parametros['codigo'];
-            $estado = $parametros['estado'];
+            $nombre = $parametros['nombreCliente'];
 
             // Creamos el Mesa
             $mesa = new Mesa();
-            $mesa->codigo = $codigo;
-            $mesa->estado = $estado;
+            $mesa->codigo = $mesa->GenerarCodigoAlfanumerico();
+            $mesa->estado = Mesa::ESTADO_CERRADA;
+            $mesa->nombreCliente = $nombre;
 
             $mesa->crearMesa();
 

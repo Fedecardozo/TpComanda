@@ -1,6 +1,7 @@
 <?php
 
     require_once "./Objetos/Pedido.php";
+    require_once "./Objetos/Mesa.php";
     require_once "./Interfaces/Icrud.php";
 
     class PedidoController extends Pedido implements Icrud
@@ -16,7 +17,7 @@
             $prd = new Pedido();
             $prd->id_usuario = $id_usuario;
             $prd->id_mesa = $id_mesa;
-            $prd->codigo = $prd->Codigo;
+            $prd->codigo = Mesa::ObtenerCodigo($prd->id_mesa);
             $prd->estado = Pedido::ESTADO_PREPARACION; 
             $prd->fechaInicio = date("Y-m-d H:i:s");
 
