@@ -24,7 +24,7 @@
 
         public function TraerTodos($request, $response, $args)
         {
-            $lista = Mesa::TraerMesas();
+            $lista = Mesa::ListarMesas();
             $payload = json_encode(array("listaMesa" => $lista));
 
             $response->getBody()->write($payload);

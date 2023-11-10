@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Arr;
+
     include_once "./BaseDatos/accesoDatos.php";
 
     class Mesa
@@ -16,27 +18,16 @@
         public $estado;
         public $nombreCliente;
 
-        // public function __get($value)
-        // {
-        //     switch ($value) 
-        //     {
-        //         case 'Codigo':
-        //             $cont = 0;
-        //             $codigo = false;
-        //             do
-        //             {
-        //                 $codigo = false;
-        //                 $codigo = self::GenerarCodigoAlfanumerico();
-        //                 if(!self::VerificarCodigo($codigo))
-        //                 {
-        //                     break;
-        //                 }
-        //                 $cont++;
-        //             }while($cont<5);
-        //             return $codigo;
-        //             break;
-        //     }
-        // }
+        public function __get($name)
+        {
+            switch ($name) 
+            {
+                case 'Codigo':
+                    return $this->nombreCliente ?? "No tiene"; break;
+                case 'NombreCliente':
+                    return $this->nombreCliente ?? "No tiene"; break;
+            }
+        }
 
         public function CrearMesa()
         {
@@ -57,6 +48,24 @@
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Mesa");
         }
 
+        public static function ListarMesas()
+        {
+            $retorno = array();
+        
+            foreach (self::TraerMesas() as $value) 
+            {
+                if($value instanceof Mesa)
+                {
+                    $clonado = clone $value;
+                    $clonado->nombreCliente = $clonado->NombreCliente;
+                    $clonado->codigo = $value->Codigo;
+                    array_push($retorno,$clonado);
+                }
+            }
+
+            return $retorno;
+        }
+
         public static function GenerarCodigoAlfanumerico() 
         {
             $caracteres = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -71,15 +80,6 @@
 
             return $codigo;
         }
-
-        // private static function VerificarCodigo($codigo)
-        // {
-        //     $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-        //     $consulta = $objetoAccesoDato->RetornarConsulta("SELECT codigo FROM mesas WHERE codigo = :codigo");
-        //     $consulta->bindValue(':codigo',$codigo,PDO::PARAM_STR);
-        //     $consulta->execute();
-        //     return $consulta->fetch();
-        // }
 
         public static function ObtenerCodigo($id)
         {
