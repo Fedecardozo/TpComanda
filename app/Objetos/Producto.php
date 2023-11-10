@@ -4,21 +4,24 @@
 
     class Producto
     {
+        public const TIPO_VINO = "Vino";
+        public const TIPO_TRAGO = "Trago";
+        public const TIPO_CERVEZA = "Cerveza";
+        public const TIPO_COMIDA = "Comida";
+        public const TIPO_POSTRE = "Postre";
 
         public $id;
         public $nombre;
         public $tipo;
         public $precio;
-        public $stock;
 
         public function CrearProducto()
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("INSERT into productos (nombre,tipo,precio,stock) values(:nombre,:tipo,:precio,:stock)");
+            $consulta = $objetoAccesoDato->RetornarConsulta("INSERT into productos (nombre,tipo,precio) values(:nombre,:tipo,:precio)");
             $consulta->bindValue(":nombre",$this->nombre,PDO::PARAM_STR);
             $consulta->bindValue(":tipo",$this->tipo,PDO::PARAM_STR);
             $consulta->bindValue(":precio",$this->precio);
-            $consulta->bindValue(":stock",$this->stock,PDO::PARAM_INT);
             $consulta->execute();
             return $objetoAccesoDato->RetornarUltimoIdInsertado();
         }
@@ -26,7 +29,7 @@
         public static function TraerProductos()
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,nombre,tipo,precio,stock FROM productos");
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,nombre,tipo,precio FROM productos");
             $consulta->execute();
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Producto");
         }

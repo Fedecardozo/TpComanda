@@ -12,14 +12,12 @@
             $nombre = $parametros['nombre'];
             $tipo = $parametros['tipo'];
             $precio = $parametros['precio'];
-            $stock = $parametros['stock'];
 
             // Creamos el Producto
             $prd = new Producto();
             $prd->nombre = $nombre;
             $prd->tipo = $tipo;
             $prd->precio = $precio;
-            $prd->stock = $stock;
             $prd->crearProducto();
 
             $payload = json_encode(array("mensaje" => "Producto creado con exito"));
