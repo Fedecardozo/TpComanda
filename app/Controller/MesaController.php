@@ -7,7 +7,7 @@
     {
         public function CargarUno($request, $response, $args)
         {
-            $parametros = $request->getParsedBody();
+            // $parametros = $request->getParsedBody();
 
             // Creamos el Mesa
             $mesa = new Mesa();
