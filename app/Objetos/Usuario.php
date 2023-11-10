@@ -44,6 +44,13 @@
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Usuario");
         }
 
+        public static function TraerUnUsuario($id)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,nombre,fechaAlta,dni,puesto,estado,fechaBaja FROM usuarios WHERE id = '$id'");
+            $consulta->execute();
+            return $consulta->fetch(PDO::FETCH_CLASS, "Usuario");
+        }
 
     }
 

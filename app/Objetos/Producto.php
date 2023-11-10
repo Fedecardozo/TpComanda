@@ -34,6 +34,13 @@
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Producto");
         }
 
+        public static function TraerUnProducto($id)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,nombre,tipo,precio FROM productos WHERE id = '$id'");
+            $consulta->execute();
+            return $consulta->fetch(PDO::FETCH_CLASS, "Producto");
+        }
 
     }
 

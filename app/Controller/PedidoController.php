@@ -2,6 +2,7 @@
 
     require_once "./Objetos/Pedido.php";
     require_once "./Objetos/Mesa.php";
+    require_once "./Objetos/Usuario.php";
     require_once "./Interfaces/Icrud.php";
 
     class PedidoController extends Pedido implements Icrud
@@ -40,6 +41,18 @@
             ->withHeader('Content-Type', 'application/json');
         }
 
+        public function TraerUno($request, $response, $args)
+        {
+            $parametros = $request->getParsedBody();
+            $id = $parametros['id'];
+
+            $pedido = Pedido::TraerUnpedido($id);
+            $payload = json_encode(array("Pedido" => $pedido));
+
+            $response->getBody()->write($payload);
+            return $response
+            ->withHeader('Content-Type', 'application/json');
+        }
     }
 
 ?>

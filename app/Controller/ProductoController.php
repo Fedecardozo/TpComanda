@@ -37,6 +37,18 @@
             ->withHeader('Content-Type', 'application/json');
         }
 
+        public function TraerUno($request, $response, $args)
+        {
+            $parametros = $request->getParsedBody();
+            $id = $parametros['id'];
+
+            $producto = Producto::TraerUnProducto($id);
+            $payload = json_encode(array("producto" => $producto));
+
+            $response->getBody()->write($payload);
+            return $response
+            ->withHeader('Content-Type', 'application/json');
+        }
     }
 
 ?>

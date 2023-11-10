@@ -32,6 +32,18 @@
             ->withHeader('Content-Type', 'application/json');
         }
 
+        public function TraerUno($request, $response, $args)
+        {
+            $parametros = $request->getParsedBody();
+            $id = $parametros['id'];
+
+            $mesa = Mesa::TraerUnaMesa($id);
+            $payload = json_encode(array("Mesa" => $mesa));
+
+            $response->getBody()->write($payload);
+            return $response
+            ->withHeader('Content-Type', 'application/json');
+        }
     }
 
 ?>

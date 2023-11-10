@@ -37,6 +37,13 @@
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Pedido");
         }
 
+        public static function TraerUnPedido($id)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,id_usuario,id_pedido FROM pedidos WHERE id = '$id'");
+            $consulta->execute();
+            return $consulta->fetch(PDO::FETCH_CLASS, "Pedido");
+        }
         
 
     }
