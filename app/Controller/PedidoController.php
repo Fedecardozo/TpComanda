@@ -82,9 +82,33 @@
             ->withHeader('Content-Type', 'application/json');
         }
 
+        public function AgregarUnaFoto($request, $response, $args)
+        {
+            $files = $request->getUploadedFiles();   
+            $parametros = $request->getParsedBody(); 
+            $codigo = $parametros["codigo"];
+
+            $msj = "No adjunto la imagen";
+            if(isset($files["foto"]))
+            {
+                $msj = "No se encontro el codigo ingresado!";
+                if(Pedido::TraerUnPedido($codigo))
+                {
+                    $foto = $files["foto"];
+                    $destino = "./ImgPedidos/".$codigo.".jpg";
+                    $foto->moveTo($destino);
+                    $msj = "Se guardo con exito la foto!";
+                }
+            }
+            $payload = json_encode(array("mensaje" => $msj));
+            $response->getBody()->write($payload);
+
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
         //Mañana apenas me levante ok
         //Averiguar como calcular el tiempo de preparacion ok
-        //Agregar foto averigurar como es eso
+        //Agregar foto averigurar como es eso ok
         //Averigurar como hacer para saber que el pedido este listo
 
     }

@@ -57,6 +57,7 @@ $app->group('/pedidos', function (RouteCollectorProxy $group)
 {
     $group->get('[/]', \PedidoController::class . ':TraerTodos');
     $group->post('[/]', \PedidoController::class . ':CargarUno');
+    $group->post('/agregarFoto', \PedidoController::class . ':AgregarUnaFoto');
 });
 
 $app->run();
