@@ -13,18 +13,43 @@
 
             $id_usuario = $parametros['id_usuario'];
             $id_mesa = $parametros['id_mesa'];
+            $nombreCliente = $parametros['nombre_cliente'];
+            $id_producto = $parametros['id_producto'];
+            $cantidad = $parametros['cantidad'];
 
-            // Creamos el Pedido
-            $prd = new Pedido();
-            $prd->id_usuario = $id_usuario;
-            $prd->id_mesa = $id_mesa;
-            $prd->codigo = Mesa::ObtenerCodigo($prd->id_mesa);
-            $prd->estado = Pedido::ESTADO_PREPARACION; 
-            $prd->fechaInicio = date("Y-m-d H:i:s");
+            $msj = array("mensaje" => "Error no existe una mesa con ese id!");
 
-            $prd->crearPedido();
+            if(Mesa::TraerUnaMesa($id_mesa))
+            {
+                $msj = array("mensaje" => "Error no existe una usuario con ese id!");
 
-            $payload = json_encode(array("mensaje" => "Pedido creado con exito"));
+                if(Usuario::TraerUnUsuario($id_usuario))
+                {
+                    $msj = array("mensaje" => "Error no existe un producto con ese id!");
+                    if(Producto::TraerUnProducto($id_producto))
+                    {
+                        // Creamos el Pedido
+                        $pedido = new Pedido();
+                        $pedido->id_mesa = $id_mesa;
+                        $pedido->id_usuario = $id_usuario;
+                        $pedido->id_producto = $id_producto;
+                        $pedido->codigo = Mesa::GenerarCodigoAlfanumerico();
+                        $pedido->estado = Pedido::ESTADO_PREPARACION; 
+                        $pedido->fechaInicio = date("Y-m-d H:i:s");
+                        $pedido->fechaEntrega = date("Y-m-d H:i:s");
+                        $pedido->cantidad = $cantidad;
+    
+                        $msj = array("mensaje" => "No se pudo crear el pedido");
+                        if(Mesa::ModificarMesa($id_mesa,$pedido->codigo,Mesa::ESTADO_ESPERANDO,$nombreCliente) && $pedido->crearPedido())
+                        {
+                            $msj = array("mensaje" => "Pedido creado con exito");
+                        }
+                    }
+                    
+                }
+            }
+            
+            $payload = json_encode($msj);
 
             $response->getBody()->write($payload);
             return $response

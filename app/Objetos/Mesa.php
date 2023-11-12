@@ -23,7 +23,7 @@ use Illuminate\Support\Arr;
             switch ($name) 
             {
                 case 'Codigo':
-                    return $this->nombreCliente ?? "No tiene"; break;
+                    return $this->codigo ?? "No tiene"; break;
                 case 'NombreCliente':
                     return $this->nombreCliente ?? "No tiene"; break;
             }
@@ -51,9 +51,10 @@ use Illuminate\Support\Arr;
         public static function TraerUnaMesa($id)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,codigo,estado,nombreCliente FROM mesas WHERE id = '$id'");
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,codigo,estado,nombreCliente FROM mesas WHERE id = :id");
+            $consulta->bindValue(':id',$id,PDO::PARAM_INT);
             $consulta->execute();
-            return $consulta->fetch(PDO::FETCH_CLASS, "Mesa");
+            return $consulta->fetchObject("Mesa");
         }
 
         public static function ListarMesas()
@@ -89,12 +90,16 @@ use Illuminate\Support\Arr;
             return $codigo;
         }
 
-        public static function ObtenerCodigo($id)
+        public static function ModificarMesa($id, $codigo, $estado,$nombreCliente)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT codigo FROM mesas WHERE id = '$id'");
+            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE mesas SET codigo = :codigo, estado = :estado, nombreCliente = :nombreCliente WHERE id = :id");
+            $consulta->bindValue(':id', $id, PDO::PARAM_INT);
+            $consulta->bindValue(':codigo', $codigo, PDO::PARAM_STR);
+            $consulta->bindValue(':estado', $estado, PDO::PARAM_STR);
+            $consulta->bindValue(':nombreCliente', $nombreCliente, PDO::PARAM_STR);
             $consulta->execute();
-            return $consulta->fetchColumn();
+            return $consulta->rowCount();
         }
 
     }

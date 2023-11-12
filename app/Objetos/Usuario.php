@@ -49,7 +49,7 @@
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
             $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,nombre,fechaAlta,dni,puesto,estado,fechaBaja FROM usuarios WHERE id = '$id'");
             $consulta->execute();
-            return $consulta->fetch(PDO::FETCH_CLASS, "Usuario");
+            return $consulta->fetchObject("Usuario");
         }
 
     }
