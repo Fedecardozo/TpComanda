@@ -1,11 +1,11 @@
 <?php
 
     include_once "./BaseDatos/accesoDatos.php";
+    require_once "./Objetos/Sector.php";
 
     class Producto
     {
-        public const TIPO_VINO = "Vino";
-        public const TIPO_TRAGO = "Trago";
+        public const TIPO_TRAGO_VINO = "Trago-Vino";
         public const TIPO_CERVEZA = "Cerveza";
         public const TIPO_COMIDA = "Comida";
         public const TIPO_POSTRE = "Postre";
@@ -40,6 +40,30 @@
             $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,nombre,tipo,precio FROM productos WHERE id = '$id'");
             $consulta->execute();
             return $consulta->fetchObject("Producto");
+        }
+
+        public function __get($name)
+        {
+            switch ($name) 
+            {
+                case 'SectorID':
+                    switch ($this->tipo) 
+                    {
+                        case self::TIPO_COMIDA:
+                            return Sector::ID_COCINA;
+                            break;
+                        case self::TIPO_POSTRE:
+                            return Sector::ID_CANDY_BAR;
+                            break;
+                        case self::TIPO_CERVEZA:
+                            return Sector::ID_BARRA_CHOPERAS;
+                            break;
+                        case self::TIPO_TRAGO_VINO:
+                            return Sector::ID_BARRA_DE_TRAGOS;
+                            break;
+                    }
+                    break;
+            }
         }
 
     }

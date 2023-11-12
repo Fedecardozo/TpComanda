@@ -3,6 +3,7 @@
     require_once "./Objetos/Pedido.php";
     require_once "./Objetos/Mesa.php";
     require_once "./Objetos/Usuario.php";
+    require_once "./Objetos/Sector.php";
     require_once "./Interfaces/Icrud.php";
 
     class PedidoController extends Pedido implements Icrud
@@ -19,16 +20,20 @@
 
             $msj = "Error no existe una mesa con ese id!";
 
-            if(Mesa::TraerUnaMesa($id_mesa))
+            if (Mesa::TraerUnaMesa($id_mesa))
             {
                 $msj = "Error no existe una usuario con ese id!";
 
                 if(Usuario::TraerUnUsuario($id_usuario))
                 {
                     $msj = "Error no existe un producto con ese id!";
-                    if(Producto::TraerUnProducto($id_producto))
+                    $producto = Producto::TraerUnProducto($id_producto);
+                    if($producto)
                     {
-                        // Creamos el Pedido
+                        //Traigo un sector relacionado con el producto
+                        $sector = Sector::TraerUnSector($producto->SectorID);
+
+                        //Creo el Pedido
                         $pedido = new Pedido();
                         $pedido->id_mesa = $id_mesa;
                         $pedido->id_usuario = $id_usuario;
@@ -36,9 +41,9 @@
                         $pedido->codigo = Mesa::GenerarCodigoAlfanumerico();
                         $pedido->estado = Pedido::ESTADO_PREPARACION; 
                         $pedido->fechaInicio = date("Y-m-d H:i:s");
-                        $pedido->fechaEntrega = date("Y-m-d H:i:s");
+                        $pedido->fechaEntrega = $sector->CalcularTiempoEstimadoPedido();
                         $pedido->cantidad = $cantidad;
-    
+                        $msj = $sector->CalcularTiempoEstimadoPedido();
                         Mesa::ModificarMesa($id_mesa,Mesa::ESTADO_COMIENDO,$nombreCliente);
                         $msj = $pedido->crearPedido() ? "Pedido creado con exito" : "No se pudo crear el pedido";
                         
@@ -76,6 +81,11 @@
             return $response
             ->withHeader('Content-Type', 'application/json');
         }
+
+        //Mañana apenas me levante ok
+        //Averiguar como calcular el tiempo de preparacion ok
+        //Agregar foto averigurar como es eso
+        //Averigurar como hacer para saber que el pedido este listo
 
     }
 

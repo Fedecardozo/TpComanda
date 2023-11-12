@@ -8,6 +8,7 @@
         public const PUESTO_BARTENDER = "Bartender";
         public const PUESTO_CERVECERO = "Cervecero";
         public const PUESTO_COCINERO = "Cocinero";
+        public const PUESTO_COCINERO_CANDY = "CocineroCandy";
         public const PUESTO_MOZO = "Mozo";
         public const PUESTO_SOCIO = "Socio";
         public const PUESTO_ADMIN = "Admin";
