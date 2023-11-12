@@ -12,6 +12,7 @@
             // Creamos el Mesa
             $mesa = new Mesa();
             $mesa->estado = Mesa::ESTADO_CERRADA;
+            $mesa->codigo = Mesa::GenerarCodigoAlfanumerico();
 
             $mesa->crearMesa();
 

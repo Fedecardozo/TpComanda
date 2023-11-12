@@ -42,12 +42,13 @@
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Pedido");
         }
 
-        public static function TraerUnPedido($id)
+        public static function TraerUnPedido($codigo)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id_usuario,id_mesa,id_producto, codigo, estado, fechaInicio,fechaEntrega,cantidad FROM pedidos WHERE id = '$id'");
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id_usuario,id_mesa,id_producto, codigo, estado, fechaInicio,fechaEntrega,cantidad FROM pedidos WHERE codigo = :codigo");
+            $consulta->bindValue(':codigo',$codigo,PDO::PARAM_STR);
             $consulta->execute();
-            return $consulta->fetch(PDO::FETCH_CLASS, "Pedido");
+            return $consulta->fetchObject("Pedido");
         }
         
 

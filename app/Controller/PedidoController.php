@@ -17,15 +17,15 @@
             $id_producto = $parametros['id_producto'];
             $cantidad = $parametros['cantidad'];
 
-            $msj = array("mensaje" => "Error no existe una mesa con ese id!");
+            $msj = "Error no existe una mesa con ese id!";
 
             if(Mesa::TraerUnaMesa($id_mesa))
             {
-                $msj = array("mensaje" => "Error no existe una usuario con ese id!");
+                $msj = "Error no existe una usuario con ese id!";
 
                 if(Usuario::TraerUnUsuario($id_usuario))
                 {
-                    $msj = array("mensaje" => "Error no existe un producto con ese id!");
+                    $msj = "Error no existe un producto con ese id!";
                     if(Producto::TraerUnProducto($id_producto))
                     {
                         // Creamos el Pedido
@@ -39,17 +39,15 @@
                         $pedido->fechaEntrega = date("Y-m-d H:i:s");
                         $pedido->cantidad = $cantidad;
     
-                        $msj = array("mensaje" => "No se pudo crear el pedido");
-                        if(Mesa::ModificarMesa($id_mesa,$pedido->codigo,Mesa::ESTADO_ESPERANDO,$nombreCliente) && $pedido->crearPedido())
-                        {
-                            $msj = array("mensaje" => "Pedido creado con exito");
-                        }
+                        Mesa::ModificarMesa($id_mesa,Mesa::ESTADO_COMIENDO,$nombreCliente);
+                        $msj = $pedido->crearPedido() ? "Pedido creado con exito" : "No se pudo crear el pedido";
+                        
                     }
                     
                 }
             }
             
-            $payload = json_encode($msj);
+            $payload = json_encode(array("mensaje" => $msj));
 
             $response->getBody()->write($payload);
             return $response
@@ -78,6 +76,7 @@
             return $response
             ->withHeader('Content-Type', 'application/json');
         }
+
     }
 
 ?>
