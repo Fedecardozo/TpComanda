@@ -12,6 +12,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+require_once './Middleware/SetTimeMiddleware.php';
 require_once './BaseDatos/AccesoDatos.php';
 require_once './Controller/UsuarioController.php';
 require_once './Controller/ProductoController.php';
@@ -33,6 +34,9 @@ $app->addErrorMiddleware(true, true, true);
 
 // Add parse body
 $app->addBodyParsingMiddleware();
+
+//Add zona horaria
+$app->add(new SetTimeMiddleware());
 
 // Routes
 $app->group('/usuarios', function (RouteCollectorProxy $group) 
