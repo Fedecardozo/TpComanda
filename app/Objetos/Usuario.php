@@ -53,6 +53,14 @@
             return $consulta->fetchObject("Usuario");
         }
 
+        public static function TraerUnUsuarioPorNombreDni($dni,$nombre)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,nombre,fechaAlta,dni,puesto,estado,fechaBaja FROM usuarios WHERE dni = '$dni' AND nombre = '$nombre'");
+            $consulta->execute();
+            return $consulta->fetchObject("Usuario");
+        }
+
     }
 
 ?>
