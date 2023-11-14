@@ -64,10 +64,14 @@ $app->group('/mesas', function (RouteCollectorProxy $group)
 $app->group('/pedidos', function (RouteCollectorProxy $group) 
 {
     $group->get('[/]', \PedidoController::class . ':TraerTodos');
+    
     $group->post('[/]', \PedidoController::class . ':CargarUno')
-    ->add(\ValidarMiddleware::class. ':VerificarParametrosPedido')//Este segundo
-    ->add(\ValidarMiddleware::class. ':IssetParametrosPedido');//Este ingresa primero
-    $group->post('/agregarFoto', \PedidoController::class . ':AgregarUnaFoto');
+    ->add(\ValidarMiddleware::class. ':VerificarParametrosPedido') //3
+    ->add(\ValidarMiddleware::class. ':IssetParametrosPedido') //2
+    ->add(\AuthMiddleware::class. ':VerificarMozo'); //1
+    
+    $group->post('/agregarFoto', \PedidoController::class . ':AgregarUnaFoto')
+    ->add(\AuthMiddleware::class. ':VerificarMozo');;
 });
 
 // JWT en login
