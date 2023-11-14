@@ -13,6 +13,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 require __DIR__ . '/../vendor/autoload.php';
 
 require_once './Middleware/SetTimeMiddleware.php';
+require_once './Middleware/ValidarMiddleware.php';
 require_once './BaseDatos/AccesoDatos.php';
 require_once './Controller/UsuarioController.php';
 require_once './Controller/ProductoController.php';
@@ -42,13 +43,15 @@ $app->add(new SetTimeMiddleware());
 $app->group('/usuarios', function (RouteCollectorProxy $group) 
 {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
-    $group->post('[/]', \UsuarioController::class . ':CargarUno');
+    $group->post('[/]', \UsuarioController::class . ':CargarUno')
+    ->add(\ValidarMiddleware::class. ':IssetParametrosUsuario');
 });
 
 $app->group('/productos', function (RouteCollectorProxy $group) 
 {
     $group->get('[/]', \ProductoController::class . ':TraerTodos');
-    $group->post('[/]', \ProductoController::class . ':CargarUno');
+    $group->post('[/]', \ProductoController::class . ':CargarUno')
+    ->add(\ValidarMiddleware::class. ':IssetParametrosProducto');;
 });
 
 $app->group('/mesas', function (RouteCollectorProxy $group) 
@@ -60,7 +63,9 @@ $app->group('/mesas', function (RouteCollectorProxy $group)
 $app->group('/pedidos', function (RouteCollectorProxy $group) 
 {
     $group->get('[/]', \PedidoController::class . ':TraerTodos');
-    $group->post('[/]', \PedidoController::class . ':CargarUno');
+    $group->post('[/]', \PedidoController::class . ':CargarUno')
+    ->add(\ValidarMiddleware::class. ':VerificarParametrosPedido')//Este segundo
+    ->add(\ValidarMiddleware::class. ':IssetParametrosPedido');//Este ingresa primero
     $group->post('/agregarFoto', \PedidoController::class . ':AgregarUnaFoto');
 });
 
