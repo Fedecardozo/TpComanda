@@ -61,4 +61,113 @@ class AuthMiddleware
         return $response
             ->withHeader('Content-Type', 'application/json');
     }
+
+    private static function Verificar(Request $request, RequestHandler $handler, $callable): Response
+    {
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+        $esValido = false;
+        $response = new Response();//Esta linea la tengo que borrar
+
+        try {
+            
+            AutentificadorJWT::verificarToken($token);
+            $data = AutentificadorJWT::ObtenerData($token);
+
+            if($callable($data))
+            {
+                // $response = $handler->handle($request);
+                $payload = json_encode(array('valid' => "mozo"));
+            }
+            else
+                throw new Exception("No es un usuario valido para realizar esta accion");     
+
+            
+        } catch (Exception $e) {
+            $response = new Response();
+            $payload = json_encode(array('error' => $e->getMessage()));
+        }
+        
+
+        $response->getBody()->write($payload);
+
+        return $response
+        ->withHeader('Content-Type', 'application/json');
+    }
+
+    public static function VerificarMozo(Request $request, RequestHandler $handler)
+    {
+        return self::Verificar($request,$handler,function($data){
+            return $data->puesto === Usuario::PUESTO_MOZO;   
+        });
+    }
+
+    public static function VerificarSocio(Request $request, RequestHandler $handler)
+    {
+        return self::Verificar($request,$handler,function($data){
+            return $data->puesto === Usuario::PUESTO_SOCIO;   
+        });
+    }
+
+    public static function VerificarAdmin(Request $request, RequestHandler $handler)
+    {
+        return self::Verificar($request,$handler,function($data){
+            return $data->puesto === Usuario::PUESTO_ADMIN;   
+        });
+    }
+
+    public static function VerificarBartender(Request $request, RequestHandler $handler)
+    {
+        return self::Verificar($request,$handler,function($data){
+            return $data->puesto === Usuario::PUESTO_BARTENDER;   
+        });
+    }
+
+    public static function VerificarCervecero(Request $request, RequestHandler $handler)
+    {
+        return self::Verificar($request,$handler,function($data){
+            return $data->puesto === Usuario::PUESTO_CERVECERO;   
+        });
+    }
+
+    public static function VerificarCandy(Request $request, RequestHandler $handler)
+    {
+        return self::Verificar($request,$handler,function($data){
+            return $data->puesto === Usuario::PUESTO_COCINERO_CANDY;   
+        });
+    }
+
+    public static function VerificarCocinero(Request $request, RequestHandler $handler)
+    {
+        return self::Verificar($request,$handler,function($data){
+            return $data->puesto === Usuario::PUESTO_COCINERO;   
+        });
+    }
+
+    //mozo toma pedido ok
+    //mozo saca foto ok
+    //moza se fija los pedidos que estan listos para servir y cambia estado mesa -
+    //moza cobra la cuenta -
+
+    //cocinero candy - listar pedidos de candy pendientes -
+    //cocinero - listar pedidos cocina pendientes -
+    //bartender - listar pedidos tragos-vinos pendientes -
+    //cervecero - cambiar el estado y agregarle tiempo de cervezar pendientes -
+   
+    //cocinero candy - cambiar el estado y agregarle tiempo de candy pendientes -
+    //cocinero - cambiar el estado y agregarle tiempo cocina pendientes -
+    //bartender - cambiar el estado y agregarle tiempo tragos-vinos pendientes -
+    //cervecero - cambiar el estado y agregarle tiempo de cervezar pendientes -
+ 
+    //cliente ingresa codigo mesa y codigo pedido y ve el tiempo de demora de su pedido -
+    //cliente ingresa codigo mesa y codigo pedido junto con los datos de la encuesta -
+
+    //socios listado pedidos y demora -
+    //socios listado mesas y estados -
+    //socios cerrar mesa -
+    //socios mejores comentarios -
+    //socios mesa mas usada -
+
+
+
 }
