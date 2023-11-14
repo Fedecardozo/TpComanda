@@ -66,6 +66,7 @@ $app->group('/mesas', function (RouteCollectorProxy $group)
 $app->group('/pedidos', function (RouteCollectorProxy $group) 
 {
     $group->get('[/]', \PedidoController::class . ':TraerTodos');
+    // $group->get('[/]', \PedidoController::class . ':ListarPedidosPendientes');
     
     $group->post('[/]', \PedidoController::class . ':CargarUno')
     ->add(\ValidarMiddleware::class. ':VerificarParametrosPedido') //3
@@ -73,7 +74,12 @@ $app->group('/pedidos', function (RouteCollectorProxy $group)
     ->add(\AuthMiddleware::class. ':VerificarMozo'); //1
     
     $group->post('/agregarFoto', \PedidoController::class . ':AgregarUnaFoto')
-    ->add(\AuthMiddleware::class. ':VerificarMozo');;
+    ->add(\AuthMiddleware::class. ':VerificarMozo');
+
+    $group->put('/agregarDuracion', \PedidoController::class . ':AsignarDuracion')
+    ->add(\ValidarMiddleware::class. ':ValidarDuracion')//3
+    ->add(\ValidarMiddleware::class. ':ValidarUpdateDetalles') //2
+    ->add(\AuthMiddleware::class. ':VerificarSectorPreparacion');//1
 });
 
 // JWT en login

@@ -6,6 +6,9 @@
     require_once "./Objetos/Mesa.php";
     require_once "./Objetos/Usuario.php";
     require_once "./Objetos/Producto.php";
+    require_once "./Objetos/Detalle.php";
+    require_once "./Objetos/Sector.php";
+
 
     class ValidarMiddleware
     {
@@ -128,9 +131,90 @@
         public static function ReturnContentJson(Request $request, RequestHandler $handler) 
         {
             $response = $handler->handle($request);
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        public static function ValidarUpdateDetalles(Request $request, RequestHandler $handler)
+        {
+            $parametros = $request->getParsedBody();
+            $response = new Response();
+            $esvalid = false;
+
+            if(isset($parametros['id_detalle']))
+            {
+                $id_detalle = $parametros['id_detalle'];
+                switch ($request->getAttribute('usuario')->puesto) 
+                {
+                    case Usuario::PUESTO_ADMIN:
+                        
+                        break;
+                    case Usuario::PUESTO_BARTENDER:
+                        $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,Sector::ID_BARRA_DE_TRAGOS);
+                        break;
+                    case Usuario::PUESTO_CERVECERO:
+                        $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,Sector::ID_BARRA_CHOPERAS);           
+                        break;
+                    case Usuario::PUESTO_COCINERO:
+                        $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,Sector::ID_COCINA);      
+                        break;
+                    case Usuario::PUESTO_COCINERO_CANDY:
+                        $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,Sector::ID_CANDY_BAR);
+                        break;
+                    case Usuario::PUESTO_MOZO:
+                        
+                        break;
+                    case Usuario::PUESTO_SOCIO:
+                        
+                        break;
+                }
+            }
+            else
+                $msj = "Falta el parametro id_detalle";
+
+            if($esvalid)
+            {
+                $response = $handler->handle($request);
+            }
+            else
+            {
+                $msj = isset($msj) ? $msj : "El id no existe o no pertence a tu sector!";
+                $payload = json_encode(array("mensaje" => $msj));
+                $response->getBody()->write($payload); 
+            }
+            
             return $response;
         }
 
+        public static function ValidarDuracion(Request $request, RequestHandler $handler)
+        {
+            $parametros = $request->getParsedBody();
+            $response = new Response();
+
+            if(!isset($parametros["duracion"]))
+            {
+                $msj = "No esta la duracion";
+            }
+            else if(!is_numeric($parametros["duracion"]))
+            {
+                $msj = "No es una duracion numerica";
+            }
+            else if(Detalle::IssetDuracion($parametros["id_detalle"]))
+            {
+                $msj = "El pedido ya tiene asignado una duracion";
+            }
+            else
+            {
+                $response = $handler->handle($request);
+            }
+
+            if(isset($msj))
+            {
+                $payload = json_encode(array("mensaje" => $msj));
+                $response->getBody()->write($payload); 
+            }
+
+            return $response;
+        }
     }
 
 

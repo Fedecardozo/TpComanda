@@ -7,6 +7,7 @@
         public const ESTADO_PREPARACION = "Preparacion";
         public const ESTADO_ENTREGADO = "Entregado";
         public const ESTADO_CANCELADO = "Cancelado";
+        public const ESTADO_LISTO = "Listo para servir";
 
         public $id;
         public $id_usuario;

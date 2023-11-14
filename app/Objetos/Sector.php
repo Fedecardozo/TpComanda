@@ -156,6 +156,7 @@
             //Retorno la fecha de entrega estimada del pedido
             return ($fechaActual->modify($strTime))->format('Y-m-d H:i:s');
         }
+
     }
 
 ?>

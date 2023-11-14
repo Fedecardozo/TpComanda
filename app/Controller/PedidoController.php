@@ -100,20 +100,21 @@
             return  $response; 
         }
 
-        //Login
-        //Necesito un logger de usuarios
-        //Con JWT y cada usuario va a tener accesso a cada informacion y accion que le corresponda
-        //Se le va a registringir algunos sectores del programa, dependiendo del usuario que inicio sesion
-        //Validarlo con middleware
+        public static function AsignarDuracion($request, $response, $args)
+        {
+            $parametros = $request->getParsedBody();
+            $id_detalle = $parametros['id_detalle'];
+            $duracion = $parametros['duracion'];
+            $estado = Pedido::ESTADO_PREPARACION;
 
+            $msj = Detalle::AddDuracion($id_detalle,$duracion,$estado) ? "Se agrego la duracion exitosamente!" : "Hubo un error al cargar la duracion!";                  
 
-        //Preguntar como generar el pedido
-        //Si se puede generar con JWT (Creo que no)
-        //Opcion 1, generar una peticion Pedir(id_usuario,id_producto,cantidad,codigo);
-        //Opcion 2, pasar un array json con el id del producto y cantidad;
+            $payload = json_encode(array("mensaje" => $msj));
+            $response->getBody()->write($payload);
 
-        //Averigurar como hacer para saber que el pedido este listo
-        
+            return $response;
+        }
+
     }
 
 ?>

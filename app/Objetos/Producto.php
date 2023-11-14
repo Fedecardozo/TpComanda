@@ -38,7 +38,6 @@
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
             $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,nombre,tipo,precio FROM productos WHERE id = '$id';");
-            // $consulta->bindValue(':id',$id,PDO::PARAM_INT);
             $consulta->execute();
             return $consulta->fetchObject("Producto");
         }

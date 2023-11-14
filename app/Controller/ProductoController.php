@@ -23,8 +23,7 @@
             $payload = json_encode(array("mensaje" => "Producto creado con exito"));
 
             $response->getBody()->write($payload);
-            return $response
-            ->withHeader('Content-Type', 'application/json');
+            return $response;
         }
 
         public function TraerTodos($request, $response, $args)
@@ -33,8 +32,7 @@
             $payload = json_encode(array("listaProducto" => $lista));
 
             $response->getBody()->write($payload);
-            return $response
-            ->withHeader('Content-Type', 'application/json');
+            return $response;
         }
 
         public function TraerUno($request, $response, $args)
@@ -46,8 +44,7 @@
             $payload = json_encode(array("producto" => $producto));
 
             $response->getBody()->write($payload);
-            return $response
-            ->withHeader('Content-Type', 'application/json');
+            return $response;
         }
     }
 

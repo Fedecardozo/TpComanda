@@ -6,7 +6,6 @@ use Slim\Psr7\Response;
 require_once "./utils/AutentificadorJWT.php";
 require_once "./Objetos/Usuario.php";
 
-
 class AuthMiddleware
 {
     /**
@@ -139,21 +138,31 @@ class AuthMiddleware
         });
     }
 
+    public static function VerificarSectorPreparacion(Request $request, RequestHandler $handler)
+    {
+        return self::Verificar($request,$handler,function($data){
+            return $data->puesto === Usuario::PUESTO_COCINERO_CANDY
+                   || $data->puesto === Usuario::PUESTO_COCINERO
+                   || $data->puesto === Usuario::PUESTO_BARTENDER
+                   || $data->puesto === Usuario::PUESTO_CERVECERO;   
+        });
+    }
+
     //mozo toma pedido ok
     //mozo saca foto ok
     //moza se fija los pedidos que estan listos para servir y cambia estado mesa -
     //moza cobra la cuenta -
-
+    
+    //cocinero candy - cambiar el estado y agregarle tiempo de candy pendientes -
+    //cocinero - cambiar el estado y agregarle tiempo cocina pendientes -
+    //bartender - cambiar el estado y agregarle tiempo tragos-vinos pendientes -
+    //cervecero - cambiar el estado y agregarle tiempo de cervezar pendientes -
+    
     //cocinero candy - listar pedidos de candy pendientes -
     //cocinero - listar pedidos cocina pendientes -
     //bartender - listar pedidos tragos-vinos pendientes -
     //cervecero - cambiar el estado y agregarle tiempo de cervezar pendientes -
    
-    //cocinero candy - cambiar el estado y agregarle tiempo de candy pendientes -
-    //cocinero - cambiar el estado y agregarle tiempo cocina pendientes -
-    //bartender - cambiar el estado y agregarle tiempo tragos-vinos pendientes -
-    //cervecero - cambiar el estado y agregarle tiempo de cervezar pendientes -
- 
     //cliente ingresa codigo mesa y codigo pedido y ve el tiempo de demora de su pedido -
     //cliente ingresa codigo mesa y codigo pedido junto con los datos de la encuesta -
 
