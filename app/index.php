@@ -14,6 +14,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 require_once './Middleware/SetTimeMiddleware.php';
 require_once './Middleware/ValidarMiddleware.php';
+require_once './Middleware/AuthMiddleware.php';
 require_once './BaseDatos/AccesoDatos.php';
 require_once './Controller/UsuarioController.php';
 require_once './Controller/ProductoController.php';
@@ -67,6 +68,14 @@ $app->group('/pedidos', function (RouteCollectorProxy $group)
     ->add(\ValidarMiddleware::class. ':VerificarParametrosPedido')//Este segundo
     ->add(\ValidarMiddleware::class. ':IssetParametrosPedido');//Este ingresa primero
     $group->post('/agregarFoto', \PedidoController::class . ':AgregarUnaFoto');
+});
+
+// JWT en login
+$app->group('/auth', function (RouteCollectorProxy $group) 
+{
+    $group->post('/login', \UsuarioController::class . ':CrearToken')
+    ->add(\AuthMiddleware::class. ':VerificarLogin');
+
 });
 
 $app->run();

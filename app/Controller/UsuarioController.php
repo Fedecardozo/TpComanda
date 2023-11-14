@@ -2,6 +2,7 @@
 
     require_once "./Objetos/Usuario.php";
     require_once "./Interfaces/Icrud.php";
+    require_once "./utils/AutentificadorJWT.php";
 
     class UsuarioController extends Usuario implements Icrud
     {
@@ -52,6 +53,17 @@
             ->withHeader('Content-Type', 'application/json');
         }
 
+        public function CrearToken($request, $response, $args)
+        {
+            $datos = $request->getAttribute('datos');//obtengo los datos del middleware
+            $token = AutentificadorJWT::CrearToken($datos);
+            $payload = json_encode(array('jwt' => $token));
+
+            $response->getBody()->write($payload);
+            return $response
+            ->withHeader('Content-Type', 'application/json');
+            
+        }
     }
 
 ?>
