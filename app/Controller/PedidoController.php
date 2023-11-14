@@ -4,59 +4,54 @@
     require_once "./Objetos/Mesa.php";
     require_once "./Objetos/Usuario.php";
     require_once "./Objetos/Sector.php";
+    require_once "./Objetos/Detalle.php";
     require_once "./Interfaces/Icrud.php";
 
     class PedidoController extends Pedido implements Icrud
     {
         public function CargarUno($request, $response, $args)
         {
-            $parametros = $request->getParsedBody();
+            //Obtener los datos del request
+            $id_mesa = $request->getAttribute('id_mesa');
+            $productos = $request->getAttribute('productos');
+            $cantidades = $request->getAttribute('cantidades');
+            $cliente = $request->getAttribute('cliente');
+            $usuario = $request->getAttribute('usuario');
 
-            $id_usuario = $parametros['id_usuario'];
-            $id_mesa = $parametros['id_mesa'];
-            $nombreCliente = $parametros['nombre_cliente'];
-            $id_producto = $parametros['id_producto'];
-            $cantidad = $parametros['cantidad'];
+            //Creo el Pedido
+            $pedido = new Pedido();
+            $pedido->id_mesa = $id_mesa;
+            $pedido->id_usuario = $usuario->id;
+            $pedido->codigo = Mesa::GenerarCodigoAlfanumerico();
+            $pedido->estado = Pedido::ESTADO_PREPARACION; 
+            $pedido->fechaInicio = date("Y-m-d H:i:s");
+            
+            $id_pedido = $pedido->CrearPedido(); 
+            $msj = "No se pudo crear el pedido";
+            $flag = false;
 
-            $msj = "Error no existe una mesa con ese id!";
-
-            if (Mesa::TraerUnaMesa($id_mesa))
+            if($id_pedido)
             {
-                $msj = "Error no existe una usuario con ese id!";
-
-                if(Usuario::TraerUnUsuario($id_usuario))
+                $detalle = new Detalle();
+                foreach ($productos as $key => $value) 
                 {
-                    $msj = "Error no existe un producto con ese id!";
-                    $producto = Producto::TraerUnProducto($id_producto);
-                    if($producto)
-                    {
-                        //Traigo un sector relacionado con el producto
-                        $sector = Sector::TraerUnSector($producto->SectorID);
-
-                        //Creo el Pedido
-                        $pedido = new Pedido();
-                        $pedido->id_mesa = $id_mesa;
-                        $pedido->id_usuario = $id_usuario;
-                        $pedido->id_producto = $id_producto;
-                        $pedido->codigo = Mesa::GenerarCodigoAlfanumerico();
-                        $pedido->estado = Pedido::ESTADO_PREPARACION; 
-                        $pedido->fechaInicio = date("Y-m-d H:i:s");
-                        $pedido->fechaEntrega = $sector->CalcularTiempoEstimadoPedido();
-                        $pedido->cantidad = $cantidad;
-                        $msj = $sector->CalcularTiempoEstimadoPedido();
-                        Mesa::ModificarMesa($id_mesa,Mesa::ESTADO_COMIENDO,$nombreCliente);
-                        $msj = $pedido->crearPedido() ? "Pedido creado con exito" : "No se pudo crear el pedido";
-                        
-                    }
-                    
+                    $detalle->id_producto = $value->id;
+                    $detalle->cantidad = $cantidades[$key];
+                    $detalle->id_pedido = $id_pedido;
+                    $detalle->id_sector = $value->SectorID;
+    
+                    Mesa::ModificarMesa($id_mesa,Mesa::ESTADO_ESPERANDO,$cliente);
+                    $flag = $detalle->CrearDetalle();
                 }
+
             }
             
+            $msj = $flag ? "Pedido creado con exito" : "Hubo un error al cargar el detalle";
+
             $payload = json_encode(array("mensaje" => $msj));
 
             $response->getBody()->write($payload);
-            return $response
-            ->withHeader('Content-Type', 'application/json');
+            return $response;
         }
 
         public function TraerTodos($request, $response, $args)
@@ -65,8 +60,7 @@
             $payload = json_encode(array("listaPedido" => $lista));
 
             $response->getBody()->write($payload);
-            return $response
-            ->withHeader('Content-Type', 'application/json');
+            return $response;
         }
 
         public function TraerUno($request, $response, $args)
@@ -78,8 +72,7 @@
             $payload = json_encode(array("Pedido" => $pedido));
 
             $response->getBody()->write($payload);
-            return $response
-            ->withHeader('Content-Type', 'application/json');
+            return $response;
         }
 
         public function AgregarUnaFoto($request, $response, $args)
@@ -100,17 +93,27 @@
                     $msj = "Se guardo con exito la foto!";
                 }
             }
+            
             $payload = json_encode(array("mensaje" => $msj));
             $response->getBody()->write($payload);
-
-            return $response->withHeader('Content-Type', 'application/json');
+            
+            return  $response; 
         }
 
-        //Mañana apenas me levante ok
-        //Averiguar como calcular el tiempo de preparacion ok
-        //Agregar foto averigurar como es eso ok
-        //Averigurar como hacer para saber que el pedido este listo
+        //Login
+        //Necesito un logger de usuarios
+        //Con JWT y cada usuario va a tener accesso a cada informacion y accion que le corresponda
+        //Se le va a registringir algunos sectores del programa, dependiendo del usuario que inicio sesion
+        //Validarlo con middleware
 
+
+        //Preguntar como generar el pedido
+        //Si se puede generar con JWT (Creo que no)
+        //Opcion 1, generar una peticion Pedir(id_usuario,id_producto,cantidad,codigo);
+        //Opcion 2, pasar un array json con el id del producto y cantidad;
+
+        //Averigurar como hacer para saber que el pedido este listo
+        
     }
 
 ?>

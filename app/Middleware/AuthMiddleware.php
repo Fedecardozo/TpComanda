@@ -46,11 +46,10 @@ class AuthMiddleware
         $dni = $parametros['dni'];
 
         $user= Usuario::TraerUnUsuarioPorNombreDni($dni,$nombre);
-        
         if($user)
         {
-            $datos = array('nombre' => $user->nombre, 'puesto' => $user->puesto);
-            $request = $request->withAttribute('datos', $datos);
+            $datos = array('dni' => $user->dni, 'nombre'=> $user->nombre, 'puesto'=>$user->puesto);
+            $request = $request->withAttribute('user', $datos);
             $response = $handler->handle($request);
         } else {
             $response = new Response();
@@ -62,22 +61,20 @@ class AuthMiddleware
             ->withHeader('Content-Type', 'application/json');
     }
 
-    private static function Verificar(Request $request, RequestHandler $handler, $callable): Response
+    private static function Verificar(Request $request, RequestHandler $handler, $call): Response
     {
         $header = $request->getHeaderLine('Authorization');
         $token = trim(explode("Bearer", $header)[1]);
-        $esValido = false;
-        $response = new Response();//Esta linea la tengo que borrar
 
         try {
             
             AutentificadorJWT::verificarToken($token);
             $data = AutentificadorJWT::ObtenerData($token);
-
-            if($callable($data))
+            $user= Usuario::TraerUnUsuarioPorNombreDni($data->dni,$data->nombre);
+            if($call($data))
             {
-                // $response = $handler->handle($request);
-                $payload = json_encode(array('valid' => "mozo"));
+                $request = $request->withAttribute('usuario', $user);
+                $response = $handler->handle($request);
             }
             else
                 throw new Exception("No es un usuario valido para realizar esta accion");     
@@ -86,10 +83,8 @@ class AuthMiddleware
         } catch (Exception $e) {
             $response = new Response();
             $payload = json_encode(array('error' => $e->getMessage()));
+            $response->getBody()->write($payload);
         }
-        
-
-        $response->getBody()->write($payload);
 
         return $response
         ->withHeader('Content-Type', 'application/json');

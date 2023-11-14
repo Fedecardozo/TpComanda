@@ -40,6 +40,8 @@ $app->addBodyParsingMiddleware();
 //Add zona horaria
 $app->add(new SetTimeMiddleware());
 
+$app->add(\ValidarMiddleware::class. ':ReturnContentJson');
+
 // Routes
 $app->group('/usuarios', function (RouteCollectorProxy $group) 
 {

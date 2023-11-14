@@ -13,79 +13,72 @@
         public static function IssetParametrosPedido($request, $handler)
         {
             $prt = $request->getParsedBody();
+            $pedido = $prt["pedido"];
 
             $response = new Response();
 
-            if(isset($prt['id_usuario']) && isset($prt['id_mesa']) && isset($prt['nombre_cliente']) && isset($prt['id_producto']) && isset($prt['cantidad']))
+            if(isset($pedido['id_mesa']) && isset($pedido['nombreCliente']))
             {
-                
-                $ids_productos = explode(',',$prt['id_producto']);
-                $cantidades = explode(',',$prt['cantidad']);
-                
-                if(count($ids_productos) === count($cantidades))
-                {
-                    $response = $handler->handle($request); 
-                }
-                else
-                    $msj = "Error! la cantidad de ids_productos con las cantidades no coincide";
-
+                $request = $request->withAttribute('id_mesa',$pedido['id_mesa']);
+                $request = $request->withAttribute('cliente',$pedido['nombreCliente']);
+                $response = $handler->handle($request); 
             }
             else
-                $msj = "Error! no estan seteados todos los parametros";
-            
-            if(isset($msj))
             {
+                $msj = "Error! no estan seteados todos los parametros (id_mesa,nombre_cliente)";
                 $payload = json_encode(array("mensaje" => $msj));
                 $response->getBody()->write($payload);  
             }
 
-            return $response->withHeader('Content-Type', 'application/json');
+            return $response;
         }
 
         public static function VerificarParametrosPedido($request, $handler)
         {
             $prt = $request->getParsedBody();
+            $id_mesa = $request->getAttribute('id_mesa');
             $response = new Response();
-            $flag = false;
-            
-            $arrayIdsProductos = explode(',',$prt['id_producto']);
-            $cantidades = explode(',',$prt['cantidad']);
+            $productos = array();
+            $cantidades = array();
 
-            if (Mesa::TraerUnaMesa($prt['id_mesa']))
+            if (Mesa::TraerUnaMesa($id_mesa))
             {
-                if(Usuario::TraerUnUsuario($prt['id_usuario']))
+                if(isset($prt['productos']) && is_array($prt['productos']))
                 {
-                    foreach ($arrayIdsProductos as $value) 
+                    foreach ($prt['productos'] as $value) 
                     {
-                        $flag = Producto::TraerUnProducto($value);
-                        if($flag)
+                        $prd = Producto::TraerUnProducto($value['id_producto']);
+                        if($prd)
                         {
-                            $msj = "Error no existe un producto con el id: ".$value;
+                            array_push($productos,$prd);
+                            array_push($cantidades,$value['cantidad']);
+                        }
+                        else
+                        {
+                            $msj = "Error no existe un producto con el id: ".$value['id_producto'];
                             break;
                         }
                     }
-
                 }
-                else
-                    $msj = "Error no existe una usuario con ese id!";
             }
             else
                 $msj = "Error no existe una mesa con ese id!";
             
-            if($flag)
-            {
-                $request->IdsProductos = $arrayIdsProductos;
-                $request->cantidades = $cantidades;
-                $response = $handler->handle($request); 
-            }
 
+            
             if(isset($msj))
             {
                 $payload = json_encode(array("mensaje" => $msj));
                 $response->getBody()->write($payload);  
             }
+            else
+            {
+                $request = $request->withAttribute('productos',$productos);
+                $request = $request->withAttribute('cantidades',$cantidades);
+                $response = $handler->handle($request); 
+            }
 
-            return $response->withHeader('Content-Type', 'application/json');
+            return $response;
         }
 
         public static function IssetParametrosUsuario($request, $handler)
@@ -107,7 +100,7 @@
                 $response->getBody()->write($payload);  
             }
 
-            return $response->withHeader('Content-Type', 'application/json');
+            return $response;
         }
 
          public static function IssetParametrosProducto($request, $handler)
@@ -129,7 +122,13 @@
                 $response->getBody()->write($payload);  
             }
 
-            return $response->withHeader('Content-Type', 'application/json');
+            return $response;
+        }
+
+        public static function ReturnContentJson(Request $request, RequestHandler $handler) 
+        {
+            $response = $handler->handle($request);
+            return $response;
         }
 
     }

@@ -55,13 +55,12 @@
 
         public function CrearToken($request, $response, $args)
         {
-            $datos = $request->getAttribute('datos');//obtengo los datos del middleware
+            $datos = $request->getAttribute('user');//obtengo los datos del middleware
             $token = AutentificadorJWT::CrearToken($datos);
             $payload = json_encode(array('jwt' => $token));
 
             $response->getBody()->write($payload);
-            return $response
-            ->withHeader('Content-Type', 'application/json');
+            return $response;
             
         }
     }
