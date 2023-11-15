@@ -144,6 +144,18 @@
             return $response;
         }
 
+        public static function ListarPedidosListos($request, $response, $args)
+        {
+            $msj = Detalle::TraerDetallesSoloPorEstado(Pedido::ESTADO_LISTO);
+
+            // $msj = count($msj) ? $msj : array("mensaje"=>"No hay pedidos listos para servir");                  
+
+            $payload = json_encode($msj);
+            $response->getBody()->write($payload);
+
+            return $response;
+        }
+        
     }
 
 ?>

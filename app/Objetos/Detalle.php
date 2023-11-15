@@ -54,6 +54,25 @@
             return $consulta->fetchAll(PDO::FETCH_ASSOC);
         }
 
+        public static function TraerDetallesSoloPorEstado($estado)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT 
+            sector.nombre_sector AS 'Sector',
+            productos.nombre AS 'Producto',
+            detalles.cantidad,
+            detalles.duracion,
+            pedidos.fechaInicio,
+            detalles.estado 
+            FROM detalles,productos,pedidos,sector 
+            WHERE detalles.estado = '$estado'
+            AND detalles.id_producto = productos.id 
+            AND detalles.id_pedido = pedidos.id 
+            AND sector.id = detalles.id_sector;");
+            $consulta->execute();
+            return $consulta->fetchAll(PDO::FETCH_ASSOC);
+        }
+
         public static function TraerDetalle_Id_sector($id,$id_sector)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
