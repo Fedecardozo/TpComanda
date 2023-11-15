@@ -125,9 +125,6 @@ use Illuminate\Support\Arr;
                 case self::ESTADO_COMIENDO:
                     $retorno = self::ESTADO_COMIENDO;
                     break;
-                case self::ESTADO_ESPERANDO:
-                    $retorno = self::ESTADO_ESPERANDO;
-                    break;
                 case self::ESTADO_PAGANDO:
                     $retorno = self::ESTADO_PAGANDO;
                     break;

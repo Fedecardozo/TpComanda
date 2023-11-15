@@ -63,7 +63,10 @@ $app->group('/mesas', function (RouteCollectorProxy $group)
     $group->post('[/]', \MesaController::class . ':CargarUno');
 
     $group->put('/cambiarEstado', \MesaController::class . ':ModificarUno')
-    ->add(\ValidarMiddleware::class. ':ValidarUpdateMesas') //2
+    ->add(\ValidarMiddleware::class. ':ValidarUpdateMesas') //5
+    ->add(\ValidarMiddleware::class. ':AccionEstadosUpdateMesas') //4
+    ->add(\ValidarMiddleware::class. ':VerificarEstadosUpdateMesas') //3
+    ->add(\ValidarMiddleware::class. ':IssetUpdateMesas') //2
     ->add(\AuthMiddleware::class. ':VerificarMozo');//1
 });
 

@@ -258,52 +258,98 @@
             return $response;
         }
 
+        public static function IssetUpdateMesas(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $parametros = $request->getParsedBody();
+
+            if(isset($parametros['codigo_mesa']) && isset($parametros['estado']))
+            {
+                $response = $handler->handle($request);
+            }
+            else
+            {
+                $msj = "No estan seteados todos los parametros codigo_mesa y estado";
+                $payload = json_encode(array("Error" => $msj));
+                $response->getBody()->write($payload); 
+            }
+            return $response;
+        }
+
+        public static function VerificarEstadosUpdateMesas(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $parametros = $request->getParsedBody();
+
+            if(Mesa::VerificarEstado($parametros['estado']))
+            {
+                $response = $handler->handle($request);//ok
+            }
+            else
+            {
+                $msj = "No existe ese estado";
+                $payload = json_encode(array("Error" => $msj));
+                $response->getBody()->write($payload); 
+            }
+            return $response;
+        }
+
+        public static function AccionEstadosUpdateMesas(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $parametros = $request->getParsedBody();
+            $mesa = Mesa::TraerUnaMesa($parametros['codigo_mesa']);
+            $usuario = $request->getAttribute('usuario');
+            $estado = $parametros['estado'];
+
+            if($mesa instanceof Mesa && $usuario->puesto === Usuario::PUESTO_MOZO )
+            {
+                if(($mesa->estado === Mesa::ESTADO_COMIENDO && $estado != Mesa::ESTADO_PAGANDO )||($mesa->estado === Mesa::ESTADO_ESPERANDO && $estado != Mesa::ESTADO_COMIENDO))
+                {
+                    $msj = "No se puede cambiar el estado de ".$mesa->estado." a ".$estado;
+                }
+                else
+                {
+                    $request = $request->withAttribute('mesa',$mesa);
+                    $response = $handler->handle($request);//ok
+                }
+            }
+            else
+            {
+                $msj = "No tiene autorizacion para modificar con ese estado";
+            }
+
+            if(isset($msj))
+            {
+                $payload = json_encode(array("Error" => $msj));
+                $response->getBody()->write($payload); 
+            }
+            return $response;
+        }
+
         public static function ValidarUpdateMesas(Request $request, RequestHandler $handler)
         {
             $parametros = $request->getParsedBody();
             $response = new Response();
-            $usuario = $request->getAttribute('usuario');
-
-            if(isset($parametros['codigo_mesa']) && isset($parametros['estado']))
+            $mesa = $request->getAttribute('mesa');
+            $estado = $parametros['estado'];
+ 
+            if(isset($mesa->codigo_pedido))
             {
-                $estado = Mesa::VerificarEstado($parametros['estado']);
-                if($estado != false)
+                $response = $handler->handle($request);//ok
+                if($estado === Mesa::ESTADO_COMIENDO)
                 {
-                    $mesa = Mesa::TraerUnaMesa($parametros['codigo_mesa']);
-                    if($mesa instanceof Mesa)
+                    $pedido = Pedido::TraerUnPedido($mesa->codigo_pedido);
+                    if(!($pedido instanceof Pedido && 
+                       Pedido::CambiarFechaEstado($pedido->id,date("Y-m-d H:i:s")) 
+                    && Detalle::ModificarEstadoTodos($pedido->id,Pedido::ESTADO_ENTREGADO)))
                     {
-                        if($usuario->puesto === Usuario::PUESTO_MOZO && $estado != Mesa::ESTADO_CERRADA)
-                        {
-                            
-                            if(isset($mesa->codigo_pedido))
-                            {
-                                $response = $handler->handle($request);//ok
-                                if($estado === Mesa::ESTADO_COMIENDO)
-                                {
-                                    $pedido = Pedido::TraerUnPedido($mesa->codigo_pedido);
-                                    if(!($pedido instanceof Pedido && 
-                                    Pedido::CambiarEstadoPedido($pedido->id,Pedido::ESTADO_ENTREGADO) 
-                                    &&  Detalle::ModificarEstadoTodos($pedido->id,Pedido::ESTADO_ENTREGADO)))
-                                    {
-                                        $msj = "Error al modificar el estado del pedido";
-                                    }
-                                    
-                                }
-                            }
-                            else
-                                $msj = "La mesa no tiene ningun pedido";
-                        }
-                        else
-                            $msj = "No tiene autorizacion para modificar con ese estado";
-                    }
-                    else
-                        $msj = "La mesa no existe";
+                        $msj = "Error al modificar el estado del pedido";
+                    }         
                 }
-                else
-                    $msj = "No existe ese estado";
             }
-            else 
-                $msj = "No estan seteados todos los parametros codigo_mesa y estado";
+            else
+                $msj = "La mesa no tiene ningun pedido";
 
             
             if(isset($msj))

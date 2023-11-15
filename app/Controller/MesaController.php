@@ -50,7 +50,7 @@
             $estado = $parametros['estado'];
 
             $msj = Mesa::ModificarEstadoMesa($codigo, $estado) ? "Se cambio el estado exitosamente" : "No se pudo cambiar el estado" ;
-            $payload = json_encode(array("Mesa" => $msj));
+            $payload = json_encode(array("mensaje" => $msj));
 
             $response->getBody()->write($payload);
             return $response;

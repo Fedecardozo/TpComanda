@@ -73,6 +73,15 @@
             return $consulta->rowCount();
         }
 
+        public static function CambiarFechaEstado($id,$fechaEntrega)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE pedidos SET estado = :estado, fechaEntrega = :fechaEntrega WHERE id = '$id'");
+            $consulta->bindValue(':estado', self::ESTADO_ENTREGADO, PDO::PARAM_STR);
+            $consulta->bindValue(':fechaEntrega', $fechaEntrega, PDO::PARAM_STR);
+            $consulta->execute();
+            return $consulta->rowCount();
+        }
     }
 
 ?>
