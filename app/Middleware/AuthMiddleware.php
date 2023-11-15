@@ -151,7 +151,7 @@ class AuthMiddleware
 
     //mozo toma pedido ok
     //mozo saca foto ok
-    //moza se fija los pedidos que estan listos para servir y cambia estado mesa -
+    //moza se fija los pedidos que estan listos para servir y cambia estado mesa ok
     //moza cobra la cuenta -
     
     //cocinero candy - cambiar el estado y agregarle tiempo de candy pendientes ok

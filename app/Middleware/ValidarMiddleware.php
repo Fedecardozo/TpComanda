@@ -8,6 +8,7 @@
     require_once "./Objetos/Producto.php";
     require_once "./Objetos/Detalle.php";
     require_once "./Objetos/Sector.php";
+    require_once "./Objetos/Pedido.php";
 
 
     class ValidarMiddleware
@@ -144,21 +145,8 @@
             {
                 $id_detalle = $parametros['id_detalle'];
                 $usuario = $request->getAttribute('usuario');
-                switch ($usuario->puesto) 
-                {
-                    case Usuario::PUESTO_ADMIN:
-                        
-                        break;
-                    case Usuario::PUESTO_MOZO:
-                        $esvalid = Detalle::TraerUnDetalle($id_detalle);
-                        break;
-                    case Usuario::PUESTO_SOCIO:
-                        
-                        break;
-                    default:
-                        $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,$usuario->IdSector);
-                        break;
-                }
+                $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,$usuario->IdSector);
+               
             }
             else
                 $msj = "Falta el parametro id_detalle";
@@ -217,9 +205,8 @@
             $isValid = isset($parametros["estado"]);
             $estado_detalle = $request->getAttribute('estado_detalle');
             $id_pedido = $request->getAttribute('id_pedido');
-            $usuario = $request->getAttribute('usuario');
 
-            if($isValid && $usuario->puesto != Usuario::PUESTO_MOZO)
+            if($isValid)
             {
                 $estado = ucfirst(strtolower($parametros["estado"])); //Capital case
                 switch ($estado) 
@@ -245,23 +232,6 @@
                     break;
                 }
             }
-            else if($isValid && $usuario->puesto == Usuario::PUESTO_MOZO)
-            {
-                $estado = ucfirst(strtolower($parametros["estado"])); //Capital case
-                if(Pedido::ESTADO_ENTREGADO === $estado)
-                { 
-                    if($estado_detalle === Pedido::ESTADO_ENTREGADO || $estado_detalle === Pedido::ESTADO_CANCELADO)
-                    {
-                        $msj = "No se puede entregar un pedido que ya fue ".$estado_detalle;
-                    }
-                    else if($estado_detalle != Pedido::ESTADO_LISTO)
-                    {
-                        $msj = "No se puede entregar un pedido que no esta listo para servir";
-                    }
-                }
-                else 
-                    $msj = "Solo tenes permitido poner ".Pedido::ESTADO_ENTREGADO;
-            }
             else
             {
                 $msj = "Falta el parametro estado";
@@ -282,18 +252,72 @@
                     //Cambio estado pedido
                     Pedido::CambiarEstadoPedido($id_pedido,Pedido::ESTADO_LISTO);
                 }
-                //Sino si el pedido fue todo entregado 
-                else if(Detalle::VerificarPedidoCompleto($id_pedido,Pedido::ESTADO_ENTREGADO))
-                {
-                    //Lo cambio a entregado
-                    Pedido::CambiarEstadoPedido($id_pedido,Pedido::ESTADO_ENTREGADO);
-                }
 
             }
 
             return $response;
         }
+
+        public static function ValidarUpdateMesas(Request $request, RequestHandler $handler)
+        {
+            $parametros = $request->getParsedBody();
+            $response = new Response();
+            $usuario = $request->getAttribute('usuario');
+
+            if(isset($parametros['codigo_mesa']) && isset($parametros['estado']))
+            {
+                $estado = Mesa::VerificarEstado($parametros['estado']);
+                if($estado != false)
+                {
+                    $mesa = Mesa::TraerUnaMesa($parametros['codigo_mesa']);
+                    if($mesa instanceof Mesa)
+                    {
+                        if($usuario->puesto === Usuario::PUESTO_MOZO && $estado != Mesa::ESTADO_CERRADA)
+                        {
+                            
+                            if(isset($mesa->codigo_pedido))
+                            {
+                                $response = $handler->handle($request);//ok
+                                if($estado === Mesa::ESTADO_COMIENDO)
+                                {
+                                    $pedido = Pedido::TraerUnPedido($mesa->codigo_pedido);
+                                    if(!($pedido instanceof Pedido && 
+                                    Pedido::CambiarEstadoPedido($pedido->id,Pedido::ESTADO_ENTREGADO) 
+                                    &&  Detalle::ModificarEstadoTodos($pedido->id,Pedido::ESTADO_ENTREGADO)))
+                                    {
+                                        $msj = "Error al modificar el estado del pedido";
+                                    }
+                                    
+                                }
+                            }
+                            else
+                                $msj = "La mesa no tiene ningun pedido";
+                        }
+                        else
+                            $msj = "No tiene autorizacion para modificar con ese estado";
+                    }
+                    else
+                        $msj = "La mesa no existe";
+                }
+                else
+                    $msj = "No existe ese estado";
+            }
+            else 
+                $msj = "No estan seteados todos los parametros codigo_mesa y estado";
+
+            
+            if(isset($msj))
+            {
+                $payload = json_encode(array("Error" => $msj));
+                $response->getBody()->write($payload); 
+            }
+
+            return $response;
+        }
+
     }
+
+
 
 
 ?>

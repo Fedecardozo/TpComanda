@@ -61,6 +61,10 @@ $app->group('/mesas', function (RouteCollectorProxy $group)
 {
     $group->get('[/]', \MesaController::class . ':TraerTodos');
     $group->post('[/]', \MesaController::class . ':CargarUno');
+
+    $group->put('/cambiarEstado', \MesaController::class . ':ModificarUno')
+    ->add(\ValidarMiddleware::class. ':ValidarUpdateMesas') //2
+    ->add(\AuthMiddleware::class. ':VerificarMozo');//1
 });
 
 $app->group('/pedidos', function (RouteCollectorProxy $group) 

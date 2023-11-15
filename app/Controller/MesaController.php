@@ -19,8 +19,7 @@
             $payload = json_encode(array("mensaje" => "Mesa creado con exito"));
 
             $response->getBody()->write($payload);
-            return $response
-            ->withHeader('Content-Type', 'application/json');
+            return $response;
         }
 
         public function TraerTodos($request, $response, $args)
@@ -29,8 +28,7 @@
             $payload = json_encode(array("listaMesa" => $lista));
 
             $response->getBody()->write($payload);
-            return $response
-            ->withHeader('Content-Type', 'application/json');
+            return $response;
         }
 
         public function TraerUno($request, $response, $args)
@@ -42,8 +40,20 @@
             $payload = json_encode(array("Mesa" => $mesa));
 
             $response->getBody()->write($payload);
-            return $response
-            ->withHeader('Content-Type', 'application/json');
+            return $response;
+        }
+
+        public function ModificarUno($request, $response, $args)
+        {
+            $parametros = $request->getParsedBody();
+            $codigo = $parametros['codigo_mesa'];
+            $estado = $parametros['estado'];
+
+            $msj = Mesa::ModificarEstadoMesa($codigo, $estado) ? "Se cambio el estado exitosamente" : "No se pudo cambiar el estado" ;
+            $payload = json_encode(array("Mesa" => $msj));
+
+            $response->getBody()->write($payload);
+            return $response;
         }
     }
 

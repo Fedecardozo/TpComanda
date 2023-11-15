@@ -15,6 +15,7 @@ use Illuminate\Support\Arr;
 
         public $id;
         public $codigo;
+        public $codigo_pedido;
         public $estado;
         public $nombreCliente;
 
@@ -43,16 +44,15 @@ use Illuminate\Support\Arr;
         public static function TraerMesas()
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,codigo,estado,nombreCliente FROM mesas");
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,codigo,codigo_pedido,estado,nombreCliente FROM mesas");
             $consulta->execute();
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Mesa");
         }
 
-        public static function TraerUnaMesa($id)
+        public static function TraerUnaMesa($codigo)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,codigo,estado,nombreCliente FROM mesas WHERE id = :id");
-            $consulta->bindValue(':id',$id,PDO::PARAM_INT);
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,codigo,codigo_pedido,estado,nombreCliente FROM mesas WHERE codigo = '$codigo'");
             $consulta->execute();
             return $consulta->fetchObject("Mesa");
         }
@@ -90,17 +90,51 @@ use Illuminate\Support\Arr;
             return $codigo;
         }
 
-        public static function ModificarMesa($id, $estado,$nombreCliente)
+        public static function ModificarMesa($id, $estado,$codigo_pedido,$nombreCliente)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE mesas SET  estado = :estado, nombreCliente = :nombreCliente WHERE id = :id");
+            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE mesas SET  estado = :estado, codigo_pedido = codigo_pedido, nombreCliente = :nombreCliente WHERE id = :id");
             $consulta->bindValue(':id', $id, PDO::PARAM_INT);
             $consulta->bindValue(':estado', $estado, PDO::PARAM_STR);
+            $consulta->bindValue(':codigo_pedido', $codigo_pedido, PDO::PARAM_STR);
             $consulta->bindValue(':nombreCliente', $nombreCliente, PDO::PARAM_STR);
             $consulta->execute();
             return $consulta->rowCount();
         }
 
+        public static function ModificarEstadoMesa($codigo, $estado)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE mesas SET estado = :estado WHERE codigo = :codigo");
+            $consulta->bindValue(':codigo', $codigo, PDO::PARAM_STR);
+            $consulta->bindValue(':estado', $estado, PDO::PARAM_STR);
+            $consulta->execute();
+            return $consulta->rowCount();
+        }
+
+        public static function VerificarEstado($estado)
+        {
+            $retorno = false;
+            $estado = ucfirst(strtolower($estado)); //Capital case
+
+            switch ($estado) 
+            {
+                case self::ESTADO_CERRADA:
+                    $retorno = self::ESTADO_CERRADA;
+                    break;
+                case self::ESTADO_COMIENDO:
+                    $retorno = self::ESTADO_COMIENDO;
+                    break;
+                case self::ESTADO_ESPERANDO:
+                    $retorno = self::ESTADO_ESPERANDO;
+                    break;
+                case self::ESTADO_PAGANDO:
+                    $retorno = self::ESTADO_PAGANDO;
+                    break;
+            }
+
+            return $retorno;
+        }
     }
 
 ?>

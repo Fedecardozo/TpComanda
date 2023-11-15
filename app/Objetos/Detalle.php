@@ -107,6 +107,16 @@
             return $consulta->rowCount();
         }
 
+        public static function ModificarEstadoTodos($id_pedido, $estado)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE detalles SET estado = :estado WHERE id_pedido = :id_pedido;");
+            $consulta->bindValue(':id_pedido', $id_pedido, PDO::PARAM_INT);
+            $consulta->bindValue(':estado', $estado, PDO::PARAM_STR);
+            $consulta->execute();
+            return $consulta->rowCount();
+        }
+
         public static function AddDuracion($id, $duracion,$estado)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();

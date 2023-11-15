@@ -50,7 +50,7 @@
         public static function TraerUnPedido($codigo)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id_usuario,id_mesa, codigo, estado, fechaInicio,fechaEntrega FROM pedidos WHERE codigo = :codigo");
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,id_usuario,id_mesa, codigo, estado, fechaInicio,fechaEntrega FROM pedidos WHERE codigo = :codigo");
             $consulta->bindValue(':codigo',$codigo,PDO::PARAM_STR);
             $consulta->execute();
             return $consulta->fetchObject("Pedido");
@@ -72,6 +72,7 @@
             $consulta->execute();
             return $consulta->rowCount();
         }
+
     }
 
 ?>

@@ -40,7 +40,7 @@
                     $detalle->id_pedido = $id_pedido;
                     $detalle->id_sector = $value->SectorID;
     
-                    Mesa::ModificarMesa($id_mesa,Mesa::ESTADO_ESPERANDO,$cliente);
+                    Mesa::ModificarMesa($id_mesa,Mesa::ESTADO_ESPERANDO,$pedido->codigo,$cliente);
                     $flag = $detalle->CrearDetalle();
                 }
 
