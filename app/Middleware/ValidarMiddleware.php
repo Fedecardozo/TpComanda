@@ -143,26 +143,11 @@
             if(isset($parametros['id_detalle']))
             {
                 $id_detalle = $parametros['id_detalle'];
-                switch ($request->getAttribute('usuario')->puesto) 
+                $usuario = $request->getAttribute('usuario');
+                switch ($usuario->puesto) 
                 {
                     case Usuario::PUESTO_ADMIN:
                         
-                        break;
-                    case Usuario::PUESTO_BARTENDER:
-                        $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,Sector::ID_BARRA_DE_TRAGOS);
-                        $request->withAttribute('sector_id',Sector::ID_BARRA_DE_TRAGOS);
-                        break;
-                    case Usuario::PUESTO_CERVECERO:
-                        $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,Sector::ID_BARRA_CHOPERAS); 
-                        $request->withAttribute('sector_id',Sector::ID_BARRA_CHOPERAS);
-                        break;
-                    case Usuario::PUESTO_COCINERO:
-                        $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,Sector::ID_COCINA);      
-                        $request->withAttribute('sector_id',Sector::ID_COCINA);
-                        break;
-                    case Usuario::PUESTO_COCINERO_CANDY:
-                        $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,Sector::ID_CANDY_BAR);
-                        $request->withAttribute('sector_id',Sector::ID_CANDY_BAR);
                         break;
                     case Usuario::PUESTO_MOZO:
                         
@@ -170,13 +155,17 @@
                     case Usuario::PUESTO_SOCIO:
                         
                         break;
+                    default:
+                        $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,$usuario->IdSector);
+                        break;
                 }
             }
             else
                 $msj = "Falta el parametro id_detalle";
 
-            if($esvalid)
+            if($esvalid instanceof Detalle)
             {
+                $request = $request->withAttribute('estado_detalle',$esvalid->estado);
                 $response = $handler->handle($request);
             }
             else
@@ -225,15 +214,36 @@
             $parametros = $request->getParsedBody();
             $response = new Response();
             $isValid = isset($parametros["estado"]);
+            $estado_detalle = $request->getAttribute('estado_detalle');
 
             if($isValid)
             {
                 $estado = ucfirst(strtolower($parametros["estado"])); //Capital case
                 switch ($estado) 
                 {
-                    case Pedido::ESTADO_CANCELADO: $estado = Pedido::ESTADO_CANCELADO; break;
-                    case Pedido::ESTADO_ENTREGADO: $estado = Pedido::ESTADO_ENTREGADO; break;
-                    case Pedido::ESTADO_LISTO: $estado = Pedido::ESTADO_LISTO; break;
+                    case Pedido::ESTADO_CANCELADO: 
+                        $estado = Pedido::ESTADO_CANCELADO; 
+                        if($estado_detalle === Pedido::ESTADO_ENTREGADO || $estado_detalle === Pedido::ESTADO_CANCELADO) 
+                        {
+                            //Al setear el msj, no es necesario poner que isvalid es false
+                            $msj = "No se puede cancelar un pedido que fue ".$estado_detalle;
+                        }
+                        break;
+                    case Pedido::ESTADO_ENTREGADO: 
+                        $estado = Pedido::ESTADO_ENTREGADO; 
+                        if($estado_detalle === Pedido::ESTADO_ENTREGADO || $estado_detalle === Pedido::ESTADO_CANCELADO)
+                        {
+                            $msj = "No se puede entregar un pedido que ya fue ".$estado_detalle;
+                        }
+                        break;
+                    case Pedido::ESTADO_LISTO: 
+                        $estado = Pedido::ESTADO_LISTO; 
+                        if($estado_detalle === Pedido::ESTADO_ENTREGADO || $estado_detalle === Pedido::ESTADO_CANCELADO)
+                        {
+                            //Al setear el msj, no es necesario poner que isvalid es false
+                            $msj = "Un pedido que cancelado o entregado no puede estar listo para servir";
+                        }
+                        break;
                     default: $msj = "Estado invalido"; $isValid = false; break;
                 }
             }

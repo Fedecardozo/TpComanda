@@ -57,7 +57,7 @@
         public static function TraerDetalle_Id_sector($id,$id_sector)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,id_producto,cantidad,id_pedido,duracion,id_sector FROM detalles WHERE id = '$id' AND id_sector = '$id_sector';");
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,id_producto,cantidad,id_pedido,duracion,id_sector,estado FROM detalles WHERE id = '$id' AND id_sector = '$id_sector';");
             $consulta->execute();
             return $consulta->fetchObject("Detalle");
         }

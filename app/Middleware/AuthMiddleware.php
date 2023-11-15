@@ -158,10 +158,10 @@ class AuthMiddleware
     //bartender - cambiar el estado y agregarle tiempo tragos-vinos pendientes ok
     //cervecero - cambiar el estado y agregarle tiempo de cervezar pendientes ok
     
-    //cocinero candy - listar pedidos de candy pendientes -
-    //cocinero - listar pedidos cocina pendientes -
-    //bartender - listar pedidos tragos-vinos pendientes -
-    //cervecero - cambiar el estado y agregarle tiempo de cervezar pendientes -
+    //cocinero candy - listar pedidos de candy pendientes - ok
+    //cocinero - listar pedidos cocina pendientes - ok
+    //bartender - listar pedidos tragos-vinos pendientes - ok
+    //cervecero - cambiar el estado y agregarle tiempo de cervezar pendientes - ok
    
     //cliente ingresa codigo mesa y codigo pedido y ve el tiempo de demora de su pedido -
     //cliente ingresa codigo mesa y codigo pedido junto con los datos de la encuesta -
