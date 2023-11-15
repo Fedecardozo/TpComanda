@@ -39,6 +39,14 @@
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Pedido");
         }
 
+        public static function TraerPedidosPorEstado($estado)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,id_usuario,id_mesa, codigo, estado, fechaInicio,fechaEntrega FROM pedidos WHERE estado = '$estado'");
+            $consulta->execute();
+            return $consulta->fetchAll(PDO::FETCH_CLASS, "Pedido");
+        }
+
         public static function TraerUnPedido($codigo)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();

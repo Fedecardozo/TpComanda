@@ -144,6 +144,7 @@ class AuthMiddleware
             return $data->puesto === Usuario::PUESTO_COCINERO_CANDY
                    || $data->puesto === Usuario::PUESTO_COCINERO
                    || $data->puesto === Usuario::PUESTO_BARTENDER
+                   || $data->puesto === Usuario::PUESTO_MOZO
                    || $data->puesto === Usuario::PUESTO_CERVECERO;   
         });
     }

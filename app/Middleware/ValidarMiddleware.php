@@ -150,7 +150,7 @@
                         
                         break;
                     case Usuario::PUESTO_MOZO:
-                        
+                        $esvalid = Detalle::TraerUnDetalle($id_detalle);
                         break;
                     case Usuario::PUESTO_SOCIO:
                         
@@ -217,25 +217,18 @@
             $isValid = isset($parametros["estado"]);
             $estado_detalle = $request->getAttribute('estado_detalle');
             $id_pedido = $request->getAttribute('id_pedido');
+            $usuario = $request->getAttribute('usuario');
 
-            if($isValid)
+            if($isValid && $usuario->puesto != Usuario::PUESTO_MOZO)
             {
                 $estado = ucfirst(strtolower($parametros["estado"])); //Capital case
                 switch ($estado) 
                 {
                     case Pedido::ESTADO_CANCELADO: 
-                        $estado = Pedido::ESTADO_CANCELADO; 
                         if($estado_detalle === Pedido::ESTADO_ENTREGADO || $estado_detalle === Pedido::ESTADO_CANCELADO) 
                         {
                             //Al setear el msj, no es necesario poner que isvalid es false
                             $msj = "No se puede cancelar un pedido que fue ".$estado_detalle;
-                        }
-                        break;
-                    case Pedido::ESTADO_ENTREGADO: 
-                        $estado = Pedido::ESTADO_ENTREGADO; 
-                        if($estado_detalle === Pedido::ESTADO_ENTREGADO || $estado_detalle === Pedido::ESTADO_CANCELADO)
-                        {
-                            $msj = "No se puede entregar un pedido que ya fue ".$estado_detalle;
                         }
                         break;
                     case Pedido::ESTADO_LISTO: 
@@ -246,8 +239,28 @@
                             $msj = "Un pedido que cancelado o entregado no puede estar listo para servir";
                         }
                         break;
-                    default: $msj = "Estado invalido"; $isValid = false; break;
+                    default: 
+                        $msj = "Los unicos estados que tenes permitido son ".Pedido::ESTADO_CANCELADO." y ".Pedido::ESTADO_LISTO; 
+                        $isValid = false; 
+                    break;
                 }
+            }
+            else if($isValid && $usuario->puesto == Usuario::PUESTO_MOZO)
+            {
+                $estado = ucfirst(strtolower($parametros["estado"])); //Capital case
+                if(Pedido::ESTADO_ENTREGADO === $estado)
+                { 
+                    if($estado_detalle === Pedido::ESTADO_ENTREGADO || $estado_detalle === Pedido::ESTADO_CANCELADO)
+                    {
+                        $msj = "No se puede entregar un pedido que ya fue ".$estado_detalle;
+                    }
+                    else if($estado_detalle != Pedido::ESTADO_LISTO)
+                    {
+                        $msj = "No se puede entregar un pedido que no esta listo para servir";
+                    }
+                }
+                else 
+                    $msj = "Solo tenes permitido poner ".Pedido::ESTADO_ENTREGADO;
             }
             else
             {
@@ -256,7 +269,7 @@
             
             if(isset($msj))
             {
-                $payload = json_encode(array("mensaje" => $msj));
+                $payload = json_encode(array("Error" => $msj));
                 $response->getBody()->write($payload); 
             }
             else if($isValid)
@@ -268,6 +281,12 @@
                 {
                     //Cambio estado pedido
                     Pedido::CambiarEstadoPedido($id_pedido,Pedido::ESTADO_LISTO);
+                }
+                //Sino si el pedido fue todo entregado 
+                else if(Detalle::VerificarPedidoCompleto($id_pedido,Pedido::ESTADO_ENTREGADO))
+                {
+                    //Lo cambio a entregado
+                    Pedido::CambiarEstadoPedido($id_pedido,Pedido::ESTADO_ENTREGADO);
                 }
 
             }

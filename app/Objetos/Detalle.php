@@ -24,6 +24,14 @@
             return $objetoAccesoDato->RetornarUltimoIdInsertado();
         }
 
+        public static function TraerUnDetalle($id)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,id_producto,cantidad,id_pedido,duracion,id_sector,estado FROM detalles WHERE id = '$id';");
+            $consulta->execute();
+            return $consulta->fetchObject("Detalle");
+        }
+
         public static function TraerDetallesPorIdPedido($id_pedido)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
