@@ -76,6 +76,11 @@ $app->group('/pedidos', function (RouteCollectorProxy $group)
     $group->post('/agregarFoto', \PedidoController::class . ':AgregarUnaFoto')
     ->add(\AuthMiddleware::class. ':VerificarMozo');
 
+    $group->put('/cambiarEstado', \PedidoController::class . ':CambiarEstadoDetalle')
+    ->add(\ValidarMiddleware::class. ':ValidarEstadoPedido') //3
+    ->add(\ValidarMiddleware::class. ':ValidarUpdateDetalles') //2
+    ->add(\AuthMiddleware::class. ':VerificarSectorPreparacion');//1
+
     $group->put('/agregarDuracion', \PedidoController::class . ':AsignarDuracion')
     ->add(\ValidarMiddleware::class. ':ValidarDuracion')//3
     ->add(\ValidarMiddleware::class. ':ValidarUpdateDetalles') //2

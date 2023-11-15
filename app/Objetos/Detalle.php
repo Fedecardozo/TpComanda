@@ -48,12 +48,11 @@
             return $consulta->fetchObject("Detalle");
         }
 
-        public static function ModificarEstado($id,$id_sector, $estado)
+        public static function ModificarEstado($id, $estado)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE detalles SET estado = :estado WHERE id_sector = :id_sector AND duracion IS NULL AND id = :id;");
+            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE detalles SET estado = :estado WHERE id = :id;");
             $consulta->bindValue(':id', $id, PDO::PARAM_INT);
-            $consulta->bindValue(':id_sector', $id_sector, PDO::PARAM_INT);
             $consulta->bindValue(':estado', $estado, PDO::PARAM_STR);
             $consulta->execute();
             return $consulta->rowCount();
@@ -62,7 +61,7 @@
         public static function AddDuracion($id, $duracion,$estado)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE detalles SET  duracion = :duracion , estado = :estado WHERE id = :id");
+            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE detalles SET  duracion = :duracion , estado = :estado WHERE id = :id AND duracion IS NULL");
             $consulta->bindValue(':id', $id, PDO::PARAM_INT);
             $consulta->bindValue(':duracion', $duracion, PDO::PARAM_INT);
             $consulta->bindValue(':estado', $estado, PDO::PARAM_STR);

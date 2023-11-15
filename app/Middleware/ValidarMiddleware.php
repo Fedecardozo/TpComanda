@@ -215,6 +215,42 @@
 
             return $response;
         }
+
+        public static function ValidarEstadoPedido(Request $request, RequestHandler $handler)
+        {
+            $parametros = $request->getParsedBody();
+            $response = new Response();
+            $isValid = isset($parametros["estado"]);
+
+            if($isValid)
+            {
+                $estado = ucfirst(strtolower($parametros["estado"])); //Capital case
+                switch ($estado) 
+                {
+                    case Pedido::ESTADO_CANCELADO: $estado = Pedido::ESTADO_CANCELADO; break;
+                    case Pedido::ESTADO_ENTREGADO: $estado = Pedido::ESTADO_ENTREGADO; break;
+                    case Pedido::ESTADO_LISTO: $estado = Pedido::ESTADO_LISTO; break;
+                    default: $msj = "Estado invalido"; $isValid = false; break;
+                }
+            }
+            else
+            {
+                $msj = "Falta el parametro estado";
+            }
+            
+            if(isset($msj))
+            {
+                $payload = json_encode(array("mensaje" => $msj));
+                $response->getBody()->write($payload); 
+            }
+            else if($isValid)
+            {
+                $request = $request->withAttribute('estado',$estado);
+                $response = $handler->handle($request);
+            }
+
+            return $response;
+        }
     }
 
 

@@ -115,6 +115,20 @@
             return $response;
         }
 
+        public static function CambiarEstadoDetalle($request, $response, $args)
+        {
+            $parametros = $request->getParsedBody();
+            $id_detalle = $parametros['id_detalle'];
+            $estado = $parametros['estado'];
+
+            $msj = Detalle::ModificarEstado($id_detalle,$estado) ? "Se cambio el estado exitosamente!" : "Hubo un error al cambiar el estado!";                  
+
+            $payload = json_encode(array("mensaje" => $msj));
+            $response->getBody()->write($payload);
+
+            return $response;
+        }
+
     }
 
 ?>
