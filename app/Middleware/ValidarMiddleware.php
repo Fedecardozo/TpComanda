@@ -166,6 +166,7 @@
             if($esvalid instanceof Detalle)
             {
                 $request = $request->withAttribute('estado_detalle',$esvalid->estado);
+                $request = $request->withAttribute('id_pedido',$esvalid->id_pedido);
                 $response = $handler->handle($request);
             }
             else
@@ -215,6 +216,7 @@
             $response = new Response();
             $isValid = isset($parametros["estado"]);
             $estado_detalle = $request->getAttribute('estado_detalle');
+            $id_pedido = $request->getAttribute('id_pedido');
 
             if($isValid)
             {
@@ -260,7 +262,14 @@
             else if($isValid)
             {
                 $request = $request->withAttribute('estado',$estado);
-                $response = $handler->handle($request);
+                $response = $handler->handle($request);//todo ok
+                //Despues de que hizo lo necesario verifico que si el pedido completo ya esta listo para servir
+                if(Detalle::VerificarPedidoCompleto($id_pedido,Pedido::ESTADO_LISTO))
+                {
+                    //Cambio estado pedido
+                    Pedido::CambiarEstadoPedido($id_pedido,Pedido::ESTADO_LISTO);
+                }
+
             }
 
             return $response;

@@ -57,6 +57,13 @@
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Pedido");
         }
 
+        public static function CambiarEstadoPedido($id,$estado)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE pedidos SET estado = '$estado' WHERE id = '$id'");
+            $consulta->execute();
+            return $consulta->rowCount();
+        }
     }
 
 ?>

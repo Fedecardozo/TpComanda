@@ -24,10 +24,10 @@
             return $objetoAccesoDato->RetornarUltimoIdInsertado();
         }
 
-        public static function TraerDetalles()
+        public static function TraerDetallesPorIdPedido($id_pedido)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,id_producto,cantidad,id_pedido,duracion,id_sector FROM detalles;");
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,id_producto,cantidad,id_pedido,duracion,id_sector,estado FROM detalles WHERE id_pedido = '$id_pedido';");
             $consulta->execute();
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Detalle");
         }
@@ -108,6 +108,24 @@
             $consulta->bindValue(':estado', $estado, PDO::PARAM_STR);
             $consulta->execute();
             return $consulta->rowCount();
+        }
+
+        public static function VerificarPedidoCompleto($id_pedido,$estado)
+        {
+            $retorno = true;
+            $detalles = self::TraerDetallesPorIdPedido($id_pedido);
+            if(is_array($detalles))
+            {
+                foreach ($detalles as $value) 
+                {
+                    if($value->estado != $estado)
+                    {
+                        $retorno = false;
+                        break;
+                    }
+                }
+            }
+            return $retorno;
         }
 
     }
