@@ -153,10 +153,10 @@ class AuthMiddleware
     //moza se fija los pedidos que estan listos para servir y cambia estado mesa -
     //moza cobra la cuenta -
     
-    //cocinero candy - cambiar el estado y agregarle tiempo de candy pendientes -
-    //cocinero - cambiar el estado y agregarle tiempo cocina pendientes -
-    //bartender - cambiar el estado y agregarle tiempo tragos-vinos pendientes -
-    //cervecero - cambiar el estado y agregarle tiempo de cervezar pendientes -
+    //cocinero candy - cambiar el estado y agregarle tiempo de candy pendientes ok
+    //cocinero - cambiar el estado y agregarle tiempo cocina pendientes ok
+    //bartender - cambiar el estado y agregarle tiempo tragos-vinos pendientes ok
+    //cervecero - cambiar el estado y agregarle tiempo de cervezar pendientes ok
     
     //cocinero candy - listar pedidos de candy pendientes -
     //cocinero - listar pedidos cocina pendientes -

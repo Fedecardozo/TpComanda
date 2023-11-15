@@ -119,11 +119,26 @@
         {
             $parametros = $request->getParsedBody();
             $id_detalle = $parametros['id_detalle'];
-            $estado = $parametros['estado'];
+            $estado = $request->getAttribute('estado');
 
             $msj = Detalle::ModificarEstado($id_detalle,$estado) ? "Se cambio el estado exitosamente!" : "Hubo un error al cambiar el estado!";                  
 
             $payload = json_encode(array("mensaje" => $msj));
+            $response->getBody()->write($payload);
+
+            return $response;
+        }
+
+        public static function ListarPedidosPendientes($request, $response, $args)
+        {
+            $usuario = $request->getAttribute('usuario');
+            $id_sector = $usuario->IdSector;
+
+            $msj = Detalle::TraerDetallesPorEstado($id_sector,Pedido::ESTADO_PREPARACION);
+
+            $msj = count($msj) ? $msj : array("mensaje"=>"No hay pendientes");                  
+
+            $payload = json_encode($msj);
             $response->getBody()->write($payload);
 
             return $response;

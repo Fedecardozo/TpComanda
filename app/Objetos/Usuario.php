@@ -61,6 +61,30 @@
             return $consulta->fetchObject("Usuario");
         }
 
+        public function __get($name)
+        {
+            switch ($name) 
+            {
+                case 'IdSector':
+                    switch ($this->puesto) 
+                    {
+                        case self::PUESTO_BARTENDER:
+                            return Sector::ID_BARRA_DE_TRAGOS;
+                            break;
+                        case self::PUESTO_CERVECERO:
+                            return Sector::ID_BARRA_CHOPERAS;
+                            break;
+                        case self::PUESTO_COCINERO:
+                            return Sector::ID_COCINA;
+                            break;
+                        case self::PUESTO_COCINERO_CANDY:
+                            return Sector::ID_CANDY_BAR;
+                            break;
+                    }
+                    break;
+            }
+        }
+
     }
 
 ?>

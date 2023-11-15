@@ -66,7 +66,8 @@ $app->group('/mesas', function (RouteCollectorProxy $group)
 $app->group('/pedidos', function (RouteCollectorProxy $group) 
 {
     $group->get('[/]', \PedidoController::class . ':TraerTodos');
-    // $group->get('[/]', \PedidoController::class . ':ListarPedidosPendientes');
+    $group->get('/listarPendientes', \PedidoController::class . ':ListarPedidosPendientes')
+    ->add(\AuthMiddleware::class. ':VerificarSectorPreparacion');//1
     
     $group->post('[/]', \PedidoController::class . ':CargarUno')
     ->add(\ValidarMiddleware::class. ':VerificarParametrosPedido') //3

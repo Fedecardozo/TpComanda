@@ -150,15 +150,19 @@
                         break;
                     case Usuario::PUESTO_BARTENDER:
                         $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,Sector::ID_BARRA_DE_TRAGOS);
+                        $request->withAttribute('sector_id',Sector::ID_BARRA_DE_TRAGOS);
                         break;
                     case Usuario::PUESTO_CERVECERO:
-                        $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,Sector::ID_BARRA_CHOPERAS);           
+                        $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,Sector::ID_BARRA_CHOPERAS); 
+                        $request->withAttribute('sector_id',Sector::ID_BARRA_CHOPERAS);
                         break;
                     case Usuario::PUESTO_COCINERO:
                         $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,Sector::ID_COCINA);      
+                        $request->withAttribute('sector_id',Sector::ID_COCINA);
                         break;
                     case Usuario::PUESTO_COCINERO_CANDY:
                         $esvalid = Detalle::TraerDetalle_Id_sector($id_detalle,Sector::ID_CANDY_BAR);
+                        $request->withAttribute('sector_id',Sector::ID_CANDY_BAR);
                         break;
                     case Usuario::PUESTO_MOZO:
                         
