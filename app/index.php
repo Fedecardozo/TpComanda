@@ -69,7 +69,7 @@ $app->group('/mesas', function (RouteCollectorProxy $group)
     ->add(\ValidarMiddleware::class. ':AccionEstadosUpdateMesas') //4
     ->add(\ValidarMiddleware::class. ':VerificarEstadosUpdateMesas') //3
     ->add(\ValidarMiddleware::class. ':IssetUpdateMesas') //2
-    ->add(\AuthMiddleware::class. ':VerificarMozo');//1
+    ->add(\AuthMiddleware::class. ':VerificarSocioOrMozo');//1
 });
 
 $app->group('/pedidos', function (RouteCollectorProxy $group) 

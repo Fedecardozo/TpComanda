@@ -149,6 +149,14 @@ class AuthMiddleware
         });
     }
 
+    public static function VerificarSocioOrMozo(Request $request, RequestHandler $handler)
+    {
+        return self::Verificar($request,$handler,function($data){
+            return $data->puesto === Usuario::PUESTO_SOCIO
+                   || $data->puesto === Usuario::PUESTO_MOZO;
+        });
+    }
+
     //mozo toma pedido ok
     //mozo saca foto ok
     //moza se fija los pedidos que estan listos para servir y cambia estado mesa ok

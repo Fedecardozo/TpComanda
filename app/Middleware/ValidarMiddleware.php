@@ -308,10 +308,15 @@
             $usuario = $request->getAttribute('usuario');
             $estado = $parametros['estado'];
 
-            if($mesa instanceof Mesa && $usuario->puesto === Usuario::PUESTO_MOZO )
+            if($mesa instanceof Mesa)
             {
-                if(($mesa->estado === Mesa::ESTADO_COMIENDO && $estado != Mesa::ESTADO_PAGANDO )||($mesa->estado === Mesa::ESTADO_ESPERANDO && $estado != Mesa::ESTADO_COMIENDO) ||
-                ($mesa->estado === Mesa::ESTADO_PAGANDO && $estado === Mesa::ESTADO_PAGANDO))
+                if(($usuario->puesto === Usuario::PUESTO_MOZO &&
+                    ($mesa->estado === Mesa::ESTADO_COMIENDO && $estado != Mesa::ESTADO_PAGANDO )||($mesa->estado === Mesa::ESTADO_ESPERANDO && $estado != Mesa::ESTADO_COMIENDO)
+                    || ($mesa->estado === Mesa::ESTADO_PAGANDO && $estado ===Mesa::ESTADO_PAGANDO)) 
+                                        || 
+                    ($usuario->puesto === Usuario::PUESTO_SOCIO && 
+                     $estado != Mesa::ESTADO_CERRADA ||
+                    ($mesa->estado === Mesa::ESTADO_CERRADA && $estado === Mesa::ESTADO_CERRADA)))
                 {
                     $msj = "No se puede cambiar el estado de ".$mesa->estado." a ".$estado;
                 }
@@ -345,22 +350,36 @@
             {
                 $response = $handler->handle($request);//ok
                 $pedido = Pedido::TraerUnPedido($mesa->codigo_pedido);
-                if($estado === Mesa::ESTADO_COMIENDO)
+                if($pedido instanceof Pedido)
                 {
-                    if(!($pedido instanceof Pedido && 
-                       Pedido::CambiarFechaEstado($pedido->id,date("Y-m-d H:i:s")) 
-                    && Detalle::ModificarEstadoTodos($pedido->id,Pedido::ESTADO_ENTREGADO)))
+                    if($estado === Mesa::ESTADO_COMIENDO)
                     {
-                        $msj = "Error al modificar el estado del pedido";
-                    }         
+                        if(!(Pedido::CambiarFechaEstado($pedido->id,date("Y-m-d H:i:s")) && Detalle::ModificarEstadoTodos($pedido->id,Pedido::ESTADO_ENTREGADO)))
+                        {
+                            $msj = "Error al modificar el estado del pedido";
+                        }         
+                    }
+                    else if($estado === Mesa::ESTADO_PAGANDO)
+                    {
+                        $cuenta = Cuenta::TraerCuentas($pedido->id);
+                        array_push($cuenta,["PrecioFinal" => Cuenta::GetCuentaFinal($cuenta)]);
+                        $payload = json_encode(["DetallePedido" => $cuenta]);
+                        $response->getBody()->write($payload); 
+                    }
+                    else if($estado === Mesa::ESTADO_CERRADA && 
+                            $pedido->estado != Pedido::ESTADO_ENTREGADO)
+                    {
+                        //Si el estado es cerrada y paso es por que es un socio
+                        //entonces si el pedido no fue entregado. Cancelo el pedido y los detalles
+                        if( !Pedido::CambiarEstadoPedido($pedido->id,Pedido::ESTADO_CANCELADO) ||
+                            !Detalle::ModificarEstadoTodos($pedido->id,Pedido::ESTADO_CANCELADO))
+                        {
+                            $msj = "Error al modificar el estado del pedido";
+                        }
+                    }
                 }
-                else if($estado === Mesa::ESTADO_PAGANDO)
-                {
-                    $cuenta = Cuenta::TraerCuentas($pedido->id);
-                    array_push($cuenta,["PrecioFinal" => Cuenta::GetCuentaFinal($cuenta)]);
-                    $payload = json_encode(["DetallePedido" => $cuenta]);
-                    $response->getBody()->write($payload); 
-                }
+                else
+                    $msj = "El pedido no existe!";
             }
             else
                 $msj = "La mesa no tiene ningun pedido";
