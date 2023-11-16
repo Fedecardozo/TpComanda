@@ -9,6 +9,7 @@
     require_once "./Objetos/Detalle.php";
     require_once "./Objetos/Sector.php";
     require_once "./Objetos/Pedido.php";
+    require_once "./Objetos/Cuenta.php";
 
 
     class ValidarMiddleware
@@ -309,7 +310,8 @@
 
             if($mesa instanceof Mesa && $usuario->puesto === Usuario::PUESTO_MOZO )
             {
-                if(($mesa->estado === Mesa::ESTADO_COMIENDO && $estado != Mesa::ESTADO_PAGANDO )||($mesa->estado === Mesa::ESTADO_ESPERANDO && $estado != Mesa::ESTADO_COMIENDO))
+                if(($mesa->estado === Mesa::ESTADO_COMIENDO && $estado != Mesa::ESTADO_PAGANDO )||($mesa->estado === Mesa::ESTADO_ESPERANDO && $estado != Mesa::ESTADO_COMIENDO) ||
+                ($mesa->estado === Mesa::ESTADO_PAGANDO && $estado === Mesa::ESTADO_PAGANDO))
                 {
                     $msj = "No se puede cambiar el estado de ".$mesa->estado." a ".$estado;
                 }
@@ -342,15 +344,22 @@
             if(isset($mesa->codigo_pedido))
             {
                 $response = $handler->handle($request);//ok
+                $pedido = Pedido::TraerUnPedido($mesa->codigo_pedido);
                 if($estado === Mesa::ESTADO_COMIENDO)
                 {
-                    $pedido = Pedido::TraerUnPedido($mesa->codigo_pedido);
                     if(!($pedido instanceof Pedido && 
                        Pedido::CambiarFechaEstado($pedido->id,date("Y-m-d H:i:s")) 
                     && Detalle::ModificarEstadoTodos($pedido->id,Pedido::ESTADO_ENTREGADO)))
                     {
                         $msj = "Error al modificar el estado del pedido";
                     }         
+                }
+                else if($estado === Mesa::ESTADO_PAGANDO)
+                {
+                    $cuenta = Cuenta::TraerCuentas($pedido->id);
+                    array_push($cuenta,["PrecioFinal" => Cuenta::GetCuentaFinal($cuenta)]);
+                    $payload = json_encode(["DetallePedido" => $cuenta]);
+                    $response->getBody()->write($payload); 
                 }
             }
             else
