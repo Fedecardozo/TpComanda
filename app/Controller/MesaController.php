@@ -47,7 +47,8 @@
         {
             $parametros = $request->getParsedBody();
             $codigo = $parametros['codigo_mesa'];
-            $estado = $parametros['estado'];
+            $estado = $request->getAttribute('estado');
+
 
             $msj = Mesa::ModificarEstadoMesa($codigo, $estado) ? "Se cambio el estado exitosamente" : "No se pudo cambiar el estado" ;
             $payload = json_encode(array("mensaje" => $msj));

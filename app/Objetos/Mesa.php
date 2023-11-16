@@ -93,7 +93,7 @@ use Illuminate\Support\Arr;
         public static function ModificarMesa($id, $estado,$codigo_pedido,$nombreCliente)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE mesas SET  estado = :estado, codigo_pedido = codigo_pedido, nombreCliente = :nombreCliente WHERE id = :id");
+            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE mesas SET  estado = :estado, codigo_pedido = :codigo_pedido, nombreCliente = :nombreCliente WHERE id = :id");
             $consulta->bindValue(':id', $id, PDO::PARAM_INT);
             $consulta->bindValue(':estado', $estado, PDO::PARAM_STR);
             $consulta->bindValue(':codigo_pedido', $codigo_pedido, PDO::PARAM_STR);

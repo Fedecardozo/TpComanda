@@ -286,9 +286,11 @@
         {
             $response = new Response();
             $parametros = $request->getParsedBody();
+            $estado = Mesa::VerificarEstado($parametros['estado']);
 
-            if(Mesa::VerificarEstado($parametros['estado']))
+            if($estado)
             {
+                $request = $request->withAttribute('estado',$estado);
                 $response = $handler->handle($request);//ok
             }
             else
@@ -306,7 +308,7 @@
             $parametros = $request->getParsedBody();
             $mesa = Mesa::TraerUnaMesa($parametros['codigo_mesa']);
             $usuario = $request->getAttribute('usuario');
-            $estado = $parametros['estado'];
+            $estado = $request->getAttribute('estado');
 
             if($mesa instanceof Mesa)
             {
@@ -344,7 +346,7 @@
             $parametros = $request->getParsedBody();
             $response = new Response();
             $mesa = $request->getAttribute('mesa');
-            $estado = $parametros['estado'];
+            $estado = $request->getAttribute('estado');
  
             if(isset($mesa->codigo_pedido))
             {
@@ -366,13 +368,16 @@
                         $payload = json_encode(["DetallePedido" => $cuenta]);
                         $response->getBody()->write($payload); 
                     }
-                    else if($estado === Mesa::ESTADO_CERRADA && 
-                            $pedido->estado != Pedido::ESTADO_ENTREGADO)
+                    else if($estado === Mesa::ESTADO_CERRADA)
                     {
                         //Si el estado es cerrada y paso es por que es un socio
-                        //entonces si el pedido no fue entregado. Cancelo el pedido y los detalles
-                        if( !Pedido::CambiarEstadoPedido($pedido->id,Pedido::ESTADO_CANCELADO) ||
-                            !Detalle::ModificarEstadoTodos($pedido->id,Pedido::ESTADO_CANCELADO))
+                        //Entonces borro los datos de la mesa
+                        Mesa::ModificarMesa($mesa->id,Mesa::ESTADO_CERRADA,null,null);
+
+                        //si el pedido no fue entregado. Cancelo el pedido y los detalles
+                        if( $pedido->estado != Pedido::ESTADO_ENTREGADO &&
+                            (!Pedido::CambiarEstadoPedido($pedido->id,Pedido::ESTADO_CANCELADO) ||
+                            !Detalle::ModificarEstadoTodos($pedido->id,Pedido::ESTADO_CANCELADO)))
                         {
                             $msj = "Error al modificar el estado del pedido";
                         }
