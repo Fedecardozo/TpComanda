@@ -56,7 +56,10 @@
 
         public function TraerTodos($request, $response, $args)
         {
-            $lista = Pedido::TraerPedidos();
+            $listaPedidos = Pedido::TraerPedidos();
+            $lista = Pedido::ListarCalculandoDemora($listaPedidos);
+
+            // $payload = json_encode(array("listaPedido" => $listaPedidos));
             $payload = json_encode(array("listaPedido" => $lista));
 
             $response->getBody()->write($payload);

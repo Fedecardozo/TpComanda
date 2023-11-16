@@ -17,6 +17,7 @@
         public $fechaInicio;
         public $fechaEntrega;
         public $imagen;
+        public $tiempoDemora;
 
         public function CrearPedido()
         {
@@ -34,7 +35,16 @@
         public static function TraerPedidos()
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,id_usuario,id_mesa, codigo, estado, fechaInicio,fechaEntrega,destino as imagen FROM pedidos");
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT pedidos.id,
+            pedidos.id_usuario,
+            pedidos.id_mesa, 
+            pedidos.codigo, 
+            pedidos.estado, 
+            pedidos.fechaInicio,
+            pedidos.fechaEntrega,
+            pedidos.destino as imagen, 
+            MAX(detalles.duracion) AS 'tiempoDemora' 
+            FROM pedidos, detalles;");
             $consulta->execute();
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Pedido");
         }
@@ -42,7 +52,7 @@
         public static function TraerPedidosPorEstado($estado)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,id_usuario,id_mesa, codigo, estado, fechaInicio,fechaEntrega,imagen FROM pedidos WHERE estado = '$estado'");
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,id_usuario,id_mesa, codigo, estado, fechaInicio,fechaEntrega,destino as imagen FROM pedidos WHERE estado = '$estado'");
             $consulta->execute();
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Pedido");
         }
@@ -50,7 +60,7 @@
         public static function TraerUnPedido($codigo)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,id_usuario,id_mesa, codigo, estado, fechaInicio,fechaEntrega,imagen FROM pedidos WHERE codigo = :codigo");
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,id_usuario,id_mesa, codigo, estado, fechaInicio,fechaEntrega,destino as imagen FROM pedidos WHERE codigo = :codigo");
             $consulta->bindValue(':codigo',$codigo,PDO::PARAM_STR);
             $consulta->execute();
             return $consulta->fetchObject("Pedido");
@@ -59,7 +69,7 @@
         public static function TraerUnPedidoPorEstado($estado)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id_usuario,id_mesa, codigo, estado, fechaInicio,fechaEntrega,imagen FROM pedidos WHERE estado = :estado");
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id_usuario,id_mesa, codigo, estado, fechaInicio,fechaEntrega,destino as imagen FROM pedidos WHERE estado = :estado");
             $consulta->bindValue(':estado',$estado,PDO::PARAM_STR);
             $consulta->execute();
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Pedido");
@@ -92,6 +102,56 @@
             $consulta->bindValue(':destino', $destino, PDO::PARAM_STR);
             $consulta->execute();
             return $consulta->rowCount();
+        }
+
+        private function CalcularDemora()
+        {
+            //Ejemplo
+            //tomo pedido 17:50
+            //demora 10 minutos
+            //Hora actual 17:57
+            //Esto tiene que ser 3 minutos
+            //(la hora actual - (la hora que el pedido + 10 minutos)) 
+
+            $retorno = "00:00";
+
+            // Fecha inicio
+            $fechaInicio = new DateTime($this->fechaInicio);
+            // Obtener la fecha actual
+            $fechaActual = new DateTime();
+            // Sumar minutos
+            $fechaSumada = clone $fechaInicio;
+            $tiempo = "PT".$this->tiempoDemora."M";
+            $fechaSumada->add(new DateInterval($tiempo));
+
+            if($fechaActual < $fechaSumada)
+            {
+                // Restar la fecha sumada a la fecha actual
+                $diferencia = $fechaActual->diff($fechaSumada);
+                $retorno = $diferencia->format('%I:%S');
+            }
+             
+            // Devolver la diferencia
+            return $retorno;
+
+        }
+
+        public static function ListarCalculandoDemora($arrayPedidos)
+        {
+            if(is_array($arrayPedidos))
+            {
+                foreach ($arrayPedidos as $value) 
+                {
+                    if($value instanceof Pedido)
+                    {
+                        if($value->estado === self::ESTADO_PREPARACION)
+                            $value->tiempoDemora = $value->CalcularDemora();
+                        else
+                            $value->tiempoDemora = "00:00";
+                    }
+                }
+            }
+            return $arrayPedidos;
         }
     }
 
