@@ -13,7 +13,7 @@
 
     class ValidarMiddleware
     {
-
+        // Pedidos
         public static function IssetParametrosPedido($request, $handler)
         {
             $prt = $request->getParsedBody();
@@ -85,6 +85,7 @@
             return $response;
         }
 
+        //Usuario
         public static function IssetParametrosUsuario($request, $handler)
         {
             $prt = $request->getParsedBody();
@@ -107,6 +108,7 @@
             return $response;
         }
 
+        //Productos
          public static function IssetParametrosProducto($request, $handler)
         {
             $prt = $request->getParsedBody();
@@ -129,12 +131,14 @@
             return $response;
         }
 
+        //Global
         public static function ReturnContentJson(Request $request, RequestHandler $handler) 
         {
             $response = $handler->handle($request);
             return $response->withHeader('Content-Type', 'application/json');
         }
 
+        //Pedidos - Detalles
         public static function ValidarUpdateDetalles(Request $request, RequestHandler $handler)
         {
             $parametros = $request->getParsedBody();
@@ -258,6 +262,7 @@
             return $response;
         }
 
+        //Mesas
         public static function IssetUpdateMesas(Request $request, RequestHandler $handler)
         {
             $response = new Response();
@@ -361,6 +366,72 @@
             return $response;
         }
 
+        //Pedido-Imagen
+        public static function IssetUpdateFotoPedido(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $parametros = $request->getParsedBody();
+            $files = $request->getUploadedFiles();   
+
+            if(isset($parametros['codigo']) && isset($files["foto"]))
+            {
+                $response = $handler->handle($request);
+            }
+            else
+            {
+                $msj = "No estan seteados todos los parametros codigo y el archivo foto";
+                $payload = json_encode(array("Error" => $msj));
+                $response->getBody()->write($payload); 
+            }
+            return $response;
+        }
+
+        public static function VerificarPedido(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $parametros = $request->getParsedBody();
+            
+            $pedido = Pedido::TraerUnPedido($parametros['codigo']);
+            
+            if($pedido instanceof Pedido)
+            {
+                $request = $request->withAttribute('pedido',$pedido);
+                $response = $handler->handle($request);
+            }
+            else
+            {
+                $msj = "El pedido no existe";
+                $payload = json_encode(array("Error" => $msj));
+                $response->getBody()->write($payload); 
+            }
+            return $response;
+        }
+
+        public static function VerificarPedidoImagen(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $pedido = $request->getAttribute('pedido');
+            
+            if($pedido->estado === Pedido::ESTADO_CANCELADO)
+            {
+                $msj = "No se le puede agregar una imagen a un pedido Cancelado";
+                $payload = json_encode(array("Error" => $msj));
+                $response->getBody()->write($payload); 
+            }
+            else 
+            {
+                $response = $handler->handle($request);
+                if(isset($pedido->imagen))
+                {
+                    $msj = "Al pedido se le reemplazo la imagen";
+                    $payload = json_encode(array("Warning" => $msj));
+                    $response->getBody()->write($payload); 
+                }
+            }
+     
+            return $response;
+        }
+        
     }
 
 

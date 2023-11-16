@@ -48,7 +48,7 @@
             
             $msj = $flag ? "Pedido creado con exito" : "Hubo un error al cargar el detalle";
 
-            $payload = json_encode(array("mensaje" => $msj));
+            $payload = json_encode(array("mensaje" => $msj, "codigo" => $pedido->codigo));
 
             $response->getBody()->write($payload);
             return $response;
@@ -78,22 +78,15 @@
         public function AgregarUnaFoto($request, $response, $args)
         {
             $files = $request->getUploadedFiles();   
-            $parametros = $request->getParsedBody(); 
-            $codigo = $parametros["codigo"];
+            $pedido = $request->getAttribute('pedido');
 
-            $msj = "No adjunto la imagen";
-            if(isset($files["foto"]))
-            {
-                $msj = "No se encontro el codigo ingresado!";
-                if(Pedido::TraerUnPedido($codigo))
-                {
-                    $foto = $files["foto"];
-                    $destino = "./ImgPedidos/".$codigo.".jpg";
-                    $foto->moveTo($destino);
-                    $msj = "Se guardo con exito la foto!";
-                }
-            }
-            
+            $foto = $files["foto"];
+            $destino = "./ImgPedidos/".$pedido->codigo.".jpg";
+            $foto->moveTo($destino);
+            $imagen = file_get_contents($destino);
+
+            $msj = Pedido::AddImagen($pedido->codigo,$imagen,$destino) ? "Se guardo con exito la foto!" : "Error al guardar la foto";
+                  
             $payload = json_encode(array("mensaje" => $msj));
             $response->getBody()->write($payload);
             
