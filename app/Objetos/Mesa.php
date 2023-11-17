@@ -49,6 +49,14 @@ use Illuminate\Support\Arr;
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Mesa");
         }
 
+        public static function TraerUnaMesaId($id)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,codigo,codigo_pedido,estado,nombreCliente FROM mesas WHERE id = '$id'");
+            $consulta->execute();
+            return $consulta->fetchObject("Mesa");
+        }
+
         public static function TraerUnaMesa($codigo)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();

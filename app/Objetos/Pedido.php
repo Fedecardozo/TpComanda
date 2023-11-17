@@ -32,7 +32,7 @@
             return $objetoAccesoDato->RetornarUltimoIdInsertado();
         }
 
-        public static function TraerPedidos()
+        /*public static function TraerPedidos()
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
             $consulta = $objetoAccesoDato->RetornarConsulta("SELECT pedidos.id,
@@ -46,6 +46,36 @@
             MAX(detalles.duracion) AS 'tiempoDemora' 
             FROM pedidos, detalles;");
             $consulta->execute();
+            return $consulta->fetchAll(PDO::FETCH_CLASS, "Pedido");
+        }*/
+
+        public static function TraerPedidos()
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT
+            pedidos.id,
+            pedidos.id_usuario,
+            pedidos.id_mesa, 
+            pedidos.codigo, 
+            pedidos.estado, 
+            pedidos.fechaInicio,
+            pedidos.fechaEntrega,
+            pedidos.destino as imagen, 
+            IFNULL(MAX(detalles.duracion), 0) AS 'tiempoDemora' 
+            FROM
+            pedidos
+            LEFT JOIN
+            detalles ON pedidos.id = detalles.id_pedido
+            GROUP BY
+            pedidos.id,
+            pedidos.id_usuario,
+            pedidos.id_mesa, 
+            pedidos.codigo, 
+            pedidos.estado, 
+            pedidos.fechaInicio,
+            pedidos.fechaEntrega,
+            pedidos.destino;");
+                    $consulta->execute();
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Pedido");
         }
 
@@ -104,7 +134,7 @@
             return $consulta->rowCount();
         }
 
-        private function CalcularDemora()
+        public function CalcularDemora()
         {
             //Ejemplo
             //tomo pedido 17:50
@@ -113,24 +143,28 @@
             //Esto tiene que ser 3 minutos
             //(la hora actual - (la hora que el pedido + 10 minutos)) 
 
-            $retorno = "00:00";
+            $retorno = "indefinido";
 
-            // Fecha inicio
-            $fechaInicio = new DateTime($this->fechaInicio);
-            // Obtener la fecha actual
-            $fechaActual = new DateTime();
-            // Sumar minutos
-            $fechaSumada = clone $fechaInicio;
-            $tiempo = "PT".$this->tiempoDemora."M";
-            $fechaSumada->add(new DateInterval($tiempo));
-
-            if($fechaActual < $fechaSumada)
+            if($this->tiempoDemora > 0)
             {
-                // Restar la fecha sumada a la fecha actual
-                $diferencia = $fechaActual->diff($fechaSumada);
-                $retorno = $diferencia->format('%I:%S');
+                $retorno = "00:00";
+                // Fecha inicio
+                $fechaInicio = new DateTime($this->fechaInicio);
+                // Obtener la fecha actual
+                $fechaActual = new DateTime();
+                // Sumar minutos
+                $fechaSumada = clone $fechaInicio;
+                $tiempo = "PT".$this->tiempoDemora."M";
+                $fechaSumada->add(new DateInterval($tiempo));
+    
+                if($fechaActual < $fechaSumada)
+                {
+                    // Restar la fecha sumada a la fecha actual
+                    $diferencia = $fechaActual->diff($fechaSumada);
+                    $retorno = $diferencia->format('%I:%S');
+                }
+                 
             }
-             
             // Devolver la diferencia
             return $retorno;
 

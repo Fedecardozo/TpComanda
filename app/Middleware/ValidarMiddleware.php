@@ -46,7 +46,7 @@
             $productos = array();
             $cantidades = array();
 
-            if (Mesa::TraerUnaMesa($id_mesa))
+            if (Mesa::TraerUnaMesaId($id_mesa))
             {
                 if(isset($prt['productos']) && is_array($prt['productos']))
                 {
@@ -465,6 +465,98 @@
             return $response;
         }
         
+        //Cliente su pedido
+        public static function IssetClientePedido(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $parametros = $request->getQueryParams();
+            
+            if(isset($parametros['codigo_pedido']) && isset($parametros["codigo_mesa"]))
+            {
+                $request = $request->withAttribute('codigo_pedido',$parametros['codigo_pedido']);
+                $request = $request->withAttribute('codigo_mesa',$parametros['codigo_mesa']);
+                $response = $handler->handle($request);
+            }
+            else
+            {
+                $msj = "No estan seteados todos los parametros codigo_pedido o el codigo_mesa";
+                $payload = json_encode(array("Error" => $msj));
+                $response->getBody()->write($payload); 
+            }
+
+            return $response;
+        }
+
+        public static function ValidarClienteParams(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $codigo_pedido = $request->getAttribute('codigo_pedido');
+            $codigo_mesa = $request->getAttribute('codigo_mesa');
+
+            if(strlen($codigo_pedido)==5 && strlen($codigo_mesa)==5)
+            {
+                $response = $handler->handle($request);
+            }
+            else
+            {
+                $msj = "codigo de pedido o codigo de mesa invalido. alfanumerico de 5 caracteres";
+                $payload = json_encode(array("Error" => $msj));
+                $response->getBody()->write($payload); 
+            }
+            return $response;
+        }
+
+        public static function VerificarMesa(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $codigo_mesa = $request->getAttribute('codigo_mesa');
+            
+            $mesa = Mesa::TraerUnaMesa($codigo_mesa);
+            if($mesa instanceof Mesa)
+            {
+                $request = $request->withAttribute('mesa',$mesa);
+                $response = $handler->handle($request);
+            }
+            else
+            {
+                $msj = "No existe la mesa";
+                $payload = json_encode(array("Error" => $msj));
+                $response->getBody()->write($payload); 
+            }
+
+            return $response;
+        }
+
+        public static function VerificarClientePedido(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $codigo_pedido = $request->getAttribute('codigo_pedido');
+            $mesa = $request->getAttribute('mesa');
+            
+            $pedido = Pedido::TraerUnPedido($codigo_pedido);
+            if($pedido instanceof Pedido && $pedido->id_mesa === $mesa->id)
+            {
+                if($pedido->estado === Pedido::ESTADO_PREPARACION && 
+                    $mesa->estado === Mesa::ESTADO_ESPERANDO)
+                {
+                    $request = $request->withAttribute('pedido',$pedido);
+                    $response = $handler->handle($request);
+                }
+                else
+                    $msj = "Su pedido esta ".$pedido->estado;         
+            }
+            else
+                $msj = "No existe el pedido";
+            
+            if(isset($msj))
+            {
+                $payload = json_encode(array("mesaje" => $msj));
+                $response->getBody()->write($payload); 
+            }
+
+            return $response;
+        }
+
     }
 
 

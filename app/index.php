@@ -77,6 +77,13 @@ $app->group('/pedidos', function (RouteCollectorProxy $group)
     $group->get('[/]', \PedidoController::class . ':TraerTodos')
     ->add(\AuthMiddleware::class. ':VerificarSocio');//1
 
+    //Cliente
+    $group->get('/clientePedido', \PedidoController::class . ':TraerUnoCliente')
+    ->add(\ValidarMiddleware::class. ':VerificarClientePedido')//4
+    ->add(\ValidarMiddleware::class. ':VerificarMesa')//3
+    ->add(\ValidarMiddleware::class. ':ValidarClienteParams')//2
+    ->add(\ValidarMiddleware::class. ':IssetClientePedido');//1
+
     $group->get('/listarPendientes', \PedidoController::class . ':ListarPedidosPendientes')
     ->add(\AuthMiddleware::class. ':VerificarSectorPreparacion');//1
 

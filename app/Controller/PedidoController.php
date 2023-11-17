@@ -59,7 +59,7 @@
             $listaPedidos = Pedido::TraerPedidos();
             $lista = Pedido::ListarCalculandoDemora($listaPedidos);
 
-            // $payload = json_encode(array("listaPedido" => $listaPedidos));
+            $payload = json_encode(array("listaPedido" => $listaPedidos));
             $payload = json_encode(array("listaPedido" => $lista));
 
             $response->getBody()->write($payload);
@@ -68,13 +68,25 @@
 
         public function TraerUno($request, $response, $args)
         {
-            $parametros = $request->getParsedBody();
-            $id = $parametros['id'];
+            $pedido = $request->getAttribute('pedido');
+            
+            $payload = json_encode($pedido);
+            $response->getBody()->write($payload); 
 
-            $pedido = Pedido::TraerUnpedido($id);
-            $payload = json_encode(array("Pedido" => $pedido));
+            return $response;
+        }
 
-            $response->getBody()->write($payload);
+        public function TraerUnoCliente($request, $response, $args)
+        {
+            $pedido = $request->getAttribute('pedido');
+            $mesa = $request->getAttribute('mesa');
+                        
+            $msj = array("Nombre cliente" => $mesa->nombreCliente,
+                            "Tiempo demora" => $pedido->CalcularDemora());
+            
+            $payload = json_encode($msj);
+            $response->getBody()->write($payload); 
+
             return $response;
         }
 
