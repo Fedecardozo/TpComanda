@@ -42,7 +42,7 @@
             $response = new Response();
             $nombre = $request->getAttribute('nombre');
             
-            if($nombre === 'encuesta' || $nombre === 'mesa' || $nombre === 'pedido' || $nombre === 'producto' || $nombre === 'usuario')
+            if($nombre === 'encuestas' || $nombre === 'mesas' || $nombre === 'pedidos' || $nombre === 'productos' || $nombre === 'usuarios')
             {
                 $destino = "./ArchivoCsv/$nombre.csv";
                 $request = $request->withAttribute('destino',$destino);
