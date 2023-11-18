@@ -160,7 +160,7 @@ class AuthMiddleware
     //mozo toma pedido ok
     //mozo saca foto ok
     //moza se fija los pedidos que estan listos para servir y cambia estado mesa ok
-    //moza cobra la cuenta -
+    //moza cobra la cuenta ok
     
     //cocinero candy - cambiar el estado y agregarle tiempo de candy pendientes ok
     //cocinero - cambiar el estado y agregarle tiempo cocina pendientes ok
@@ -172,12 +172,12 @@ class AuthMiddleware
     //bartender - listar pedidos tragos-vinos pendientes - ok
     //cervecero - cambiar el estado y agregarle tiempo de cervezar pendientes - ok
    
-    //cliente ingresa codigo mesa y codigo pedido y ve el tiempo de demora de su pedido -
+    //cliente ingresa codigo mesa y codigo pedido y ve el tiempo de demora de su pedido ok
     //cliente ingresa codigo mesa y codigo pedido junto con los datos de la encuesta -
 
-    //socios listado pedidos y demora -
-    //socios listado mesas y estados -
-    //socios cerrar mesa -
+    //socios listado pedidos y demora ok
+    //socios listado mesas y estados ok
+    //socios cerrar mesa ok
     //socios mejores comentarios -
     //socios mesa mas usada -
 

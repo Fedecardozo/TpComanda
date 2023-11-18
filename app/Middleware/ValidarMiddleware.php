@@ -86,29 +86,6 @@
             return $response;
         }
 
-        //Usuario
-        public static function IssetParametrosUsuario($request, $handler)
-        {
-            $prt = $request->getParsedBody();
-
-            $response = new Response();
-
-            if(isset($prt['nombre']) && isset($prt['dni']) && isset($prt['puesto']))
-            {
-                $response = $handler->handle($request); 
-            }
-            else
-                $msj = "Error! no estan seteados todos los parametros (nombre,dni,puesto)";
-            
-            if(isset($msj))
-            {
-                $payload = json_encode(array("mensaje" => $msj));
-                $response->getBody()->write($payload);  
-            }
-
-            return $response;
-        }
-
         //Productos
          public static function IssetParametrosProducto($request, $handler)
         {

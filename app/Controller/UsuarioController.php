@@ -53,6 +53,35 @@
             ->withHeader('Content-Type', 'application/json');
         }
 
+        public function BorrarUno($request, $response, $args)
+        {
+            $parametros = $request->getParsedBody();
+            $id = $parametros['id'];
+
+            $usuario = Usuario::BorrarUnUsuario($id);
+            $msj = $usuario ? "Se elimino con exito" : "No se pudo eliminar";
+            $payload = json_encode(array("mensaje" => $msj));
+
+            $response->getBody()->write($payload);
+            return $response;
+        }
+
+        public function ModificarUno($request, $response, $args)
+        {
+            $parametros = $request->getParsedBody();
+            $nombre = $parametros['nombre'];
+            $dni = $parametros['dni'];
+            $puesto = $parametros['puesto'];
+            $id = $parametros['id'];
+
+            $usuario = Usuario::ModificarUnUsuario($nombre,$dni,$puesto,$id);
+            $msj = $usuario ? "Se modifico con exito" : "El dni ya existe";
+            $payload = json_encode(array("mensaje" => $msj));
+
+            $response->getBody()->write($payload);
+            return $response;
+        }
+
         public function CrearToken($request, $response, $args)
         {
             $datos = $request->getAttribute('user');//obtengo los datos del middleware

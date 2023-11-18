@@ -15,6 +15,7 @@ require __DIR__ . '/../vendor/autoload.php';
 require_once './Middleware/SetTimeMiddleware.php';
 require_once './Middleware/ValidarMiddleware.php';
 require_once './Middleware/AuthMiddleware.php';
+require_once './Middleware/MiddlewareABM.php';
 require_once './BaseDatos/AccesoDatos.php';
 require_once './Controller/UsuarioController.php';
 require_once './Controller/ProductoController.php';
@@ -46,9 +47,26 @@ $app->add(\ValidarMiddleware::class. ':ReturnContentJson');
 $app->group('/usuarios', function (RouteCollectorProxy $group) 
 {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
+
+    //ABM
+    //Alta solo socio
     $group->post('[/]', \UsuarioController::class . ':CargarUno')
-    ->add(\ValidarMiddleware::class. ':IssetParametrosUsuario');
-});
+    ->add(\MiddlewareABM::class. ':IssetParametrosUsuario');
+    
+    //Baja solo socio
+    $group->delete('[/]', \UsuarioController::class . ':BorrarUno')
+    ->add(\MiddlewareABM::class. ':UsuarioIsActivo')
+    ->add(\MiddlewareABM::class. ':IsUsuario')
+    ->add(\MiddlewareABM::class. ':IssetParametrosIdUsuario');
+    
+    //Modificacion solo socio
+    $group->put('[/]', \UsuarioController::class . ':ModificarUno')
+    ->add(\MiddlewareABM::class. ':IsUsuario')
+    ->add(\MiddlewareABM::class. ':IssetParametrosUsuario')
+    ->add(\MiddlewareABM::class. ':IssetParametrosIdUsuario');
+
+    
+})->add(\AuthMiddleware::class. ':VerificarSocio');//1
 
 $app->group('/productos', function (RouteCollectorProxy $group) 
 {

@@ -53,6 +53,32 @@
             return $consulta->fetchObject("Usuario");
         }
 
+        public static function BorrarUnUsuario($id)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE usuarios SET fechaBaja = :fechaBaja, estado = :estado WHERE id = :id ");
+
+            $consulta->bindValue(':fechaBaja',date('Y-m-d H:i:s'),PDO::PARAM_STR);
+            $consulta->bindValue(':estado',self::ESTADO_INACTIVO,PDO::PARAM_STR);
+            $consulta->bindValue(':id',$id,PDO::PARAM_INT);
+
+            $consulta->execute();
+            return $consulta->rowCount();
+        }
+
+        public static function ModificarUnUsuario($nombre,$dni,$puesto,$id)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE usuarios SET nombre = :nombre, dni = :dni, puesto = :puesto WHERE id = '$id'");
+
+            $consulta->bindValue(':nombre',$nombre,PDO::PARAM_STR);
+            $consulta->bindValue(':dni',$dni,PDO::PARAM_STR);
+            $consulta->bindValue(':puesto',$puesto,PDO::PARAM_STR);
+
+            $consulta->execute();
+            return $consulta->rowCount();
+        }
+
         public static function TraerUnUsuarioPorNombreDni($dni,$nombre)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
