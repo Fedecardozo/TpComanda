@@ -81,6 +81,9 @@ $app->group('/mesas', function (RouteCollectorProxy $group)
     $group->get('[/]', \MesaController::class . ':TraerTodos')
     ->add(\AuthMiddleware::class. ':VerificarSocio');//1
 
+    $group->get('/mesaMasUsada', \MesaController::class . ':TraerMesaMasUsada')
+    ->add(\AuthMiddleware::class. ':VerificarSocio');//1
+
     $group->post('[/]', \MesaController::class . ':CargarUno');
 
     $group->put('/cambiarEstado', \MesaController::class . ':ModificarUno')

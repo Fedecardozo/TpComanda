@@ -65,6 +65,18 @@ use Illuminate\Support\Arr;
             return $consulta->fetchObject("Mesa");
         }
 
+        public static function TraerIdMesaMasUsada()
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id_mesa, COUNT(*) AS veces_usada
+            FROM pedidos
+            GROUP BY id_mesa
+            ORDER BY veces_usada DESC
+            LIMIT 1;");
+            $consulta->execute();
+            return $consulta->fetch(PDO::FETCH_ASSOC);
+        }
+
         public static function ListarMesas()
         {
             $retorno = array();

@@ -57,6 +57,29 @@
             return $response;
         }
 
+        public function TraerMesaMasUsada($request, $response, $args)
+        {
+
+            $associativo = Mesa::TraerIdMesaMasUsada();
+            if($associativo && $associativo['id_mesa'] > 0)
+            {
+                $mesa = Mesa::TraerUnaMesaId($associativo['id_mesa']);
+                $associativo['codigo'] = $mesa->codigo;
+                $associativo['estado'] = $mesa->estado;
+                $msj = $associativo;
+            }
+            else
+            {
+                $msj = "No hay mesa mas usada";
+            }
+            
+            
+            $payload = json_encode(array("mensaje" => $msj));
+
+            $response->getBody()->write($payload);
+            return $response;
+        }
+
     }
 
 ?>
