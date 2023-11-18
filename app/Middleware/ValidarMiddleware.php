@@ -10,6 +10,7 @@
     require_once "./Objetos/Sector.php";
     require_once "./Objetos/Pedido.php";
     require_once "./Objetos/Cuenta.php";
+    require_once "./Objetos/Encuesta.php";
 
 
     class ValidarMiddleware
@@ -534,6 +535,134 @@
             {
                 $payload = json_encode(array("mesaje" => $msj));
                 $response->getBody()->write($payload); 
+            }
+
+            return $response;
+        }
+
+        //Cliente encuesta
+        public static function IssetParamsEncuesta(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $parametros = $request->getParsedBody();
+            $array = ['punt_mesa','punt_restaurante','punt_mozo','punt_cocinero','estrellas','tipo','texto'];
+
+            foreach ($array as $value) 
+            {
+                if(!isset($parametros[$value]))
+                {
+                    $msj = "Falta parametro $value"; 
+                    $payload = json_encode(array("error" => $msj));
+                    $response->getBody()->write($payload); 
+                    return $response;
+                }
+                else
+                {
+                    $request = $request->withAttribute($value,$parametros[$value]);
+                }
+            }
+
+            $response = $handler->handle($request);
+            return $response;
+        }
+
+        public static function ValidarParamsEncuesta(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $lengthTexto = strlen($request->getAttribute('texto'));
+            $tipo = ucfirst(strtolower($request->getAttribute('tipo')));
+            $estrellas =  $request->getAttribute('estrellas');
+            $request = $request->withAttribute('tipo', $tipo);
+            $array = ['punt_mesa','punt_restaurante','punt_mozo','punt_cocinero'];
+
+            if($estrellas < 1 || $estrellas > 5)
+            {
+                $msj = "estrellas solo del 1 al 5";
+            }
+            else if(!($tipo === Encuesta::TIPO_BUENA || $tipo === Encuesta::TIPO_MALA))
+            {
+                $msj = "tipo solo buena o mala";
+            }
+            else if($lengthTexto< 1 || $lengthTexto > 66)
+            {
+                $msj = "Texto solo permitido 66 caracteres";
+            }
+            else
+            {
+                foreach ($array as $value) 
+                {
+                    if($request->getAttribute($value) < 1 || $request->getAttribute($value)>10)
+                    {
+                        $msj = "Solo puntuacion del 1 al 10. ($value)";
+                        break; 
+                    }
+                }
+            }
+
+            if(isset($msj))
+            {
+                $payload = json_encode(array("error" => $msj));
+                $response->getBody()->write($payload); 
+            }
+            else
+            {
+                $response = $handler->handle($request);
+            }
+
+            return $response;
+        }
+
+        public static function IsValidoPedidoMesa(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $mesa = $request->getAttribute('mesa');
+            $pedido = $request->getAttribute('pedido');
+
+            if($pedido->id_mesa === $mesa->id)
+            {
+                $response = $handler->handle($request);
+            }
+            else
+            {
+                $payload = json_encode(array("error" => "El pedido no coincide con la mesa"));
+                $response->getBody()->write($payload); 
+            }
+
+            return $response;
+        }
+
+        public static function MesaEstadoPagando(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $mesa = $request->getAttribute('mesa');
+
+            if($mesa->estado === Mesa::ESTADO_PAGANDO)
+            {
+                $response = $handler->handle($request);
+            }
+            else
+            {
+                $payload = json_encode(array("error" => "Todavia no termino de comer"));
+                $response->getBody()->write($payload); 
+            }
+
+            return $response;
+        }
+
+        public static function VerficarEncuesta(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $pedido = $request->getAttribute('pedido');
+            $encuesta = Encuesta::TraerUnaEncuesta($pedido->codigo);
+
+            if($encuesta instanceof Encuesta)
+            {
+                $payload = json_encode(array("error" => "Esta mesa y pedido ya tiene una encuesta"));
+                $response->getBody()->write($payload); 
+            }
+            else
+            {
+                $response = $handler->handle($request);
             }
 
             return $response;

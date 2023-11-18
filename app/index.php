@@ -21,6 +21,7 @@ require_once './Controller/UsuarioController.php';
 require_once './Controller/ProductoController.php';
 require_once './Controller/MesaController.php';
 require_once './Controller/PedidoController.php';
+require_once './Controller/ClienteController.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -138,40 +139,23 @@ $app->group('/pedidos', function (RouteCollectorProxy $group)
 //Clientes
 $app->group('/clientes', function(RouteCollectorProxy $group)
 {
-    $group->get('/tiempoDemora', \PedidoController::class . ':TraerUnoCliente')
+    $group->get('/tiempoDemora', \ClienteController::class . ':TraerUnoCliente')
     ->add(\ValidarMiddleware::class. ':VerificarClientePedido')//4
     ->add(\ValidarMiddleware::class. ':VerificarMesa')//3
     ->add(\ValidarMiddleware::class. ':ValidarClienteParams')//2
     ->add(\ValidarMiddleware::class. ':IssetClientePedido');//1
 
-    $group->get('/encuesta', \PedidoController::class . ':TraerUnoCliente')
-    ->add(\ValidarMiddleware::class. ':VerificarClientePedido')//4
-    ->add(\ValidarMiddleware::class. ':VerificarMesa')//3
-    ->add(\ValidarMiddleware::class. ':ValidarClienteParams')//2
-    ->add(\ValidarMiddleware::class. ':IssetClientePedido');//1
+    $group->post('[/]', \ClienteController::class . ':CargarUno')
+    ->add(\ValidarMiddleware::class. ':MesaEstadoPagando')//Validar estado de la mesa
+    ->add(\ValidarMiddleware::class. ':VerficarEncuesta')//Validar que ya no tengan una encuesta
+    ->add(\ValidarMiddleware::class. ':IsValidoPedidoMesa')//mesa y pedido coicidan sus codigos
+    ->add(\MiddlewareABM::class. ':IsPedido')//Pedido exista
+    ->add(\ValidarMiddleware::class. ':VerificarMesa')//Mesa exista
+    ->add(\ValidarMiddleware::class. ':ValidarParamsEncuesta')//Puntua(1-10),estrella(1-5)texto(<66)
+    ->add(\ValidarMiddleware::class. ':IssetParamsEncuesta')//Que esten todos los campos setados
+    ->add(\ValidarMiddleware::class. ':ValidarClienteParams')//Que los codigos sean validos
+    ->add(\ValidarMiddleware::class. ':IssetClientePedido');//codigo_pedido y codigo_mesa
 
-    //Una clase encuesta
-    //puntuacion 1 a 10
-    //-mesa
-    //-restaurante
-    //-mozo
-    //-cocinero
-    //-estrellas //hasta 5
-    //-tipo //buena o mala
-    //-texto //66 caracteres
-    //-codigo_pedido
-    //-codigo_mesa
-
-    //Hacer un controllercliente
-    //Pasar el traer un cliente
-    //Guardar encuesta en la base de datos
-    
-    //Validar
-    //Parametros(isset)
-    //puntuacion
-    //tipo
-    //texto <= 66 caracteres
-    //mesa y pedido coicidan
 
     //Listar (solo socios)
     //Mejores comentarios

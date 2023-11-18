@@ -88,20 +88,6 @@
             return $response;
         }
 
-        public function TraerUnoCliente($request, $response, $args)
-        {
-            $pedido = $request->getAttribute('pedido');
-            $mesa = $request->getAttribute('mesa');
-                        
-            $msj = array("Nombre cliente" => $mesa->nombreCliente,
-                            "Tiempo demora" => $pedido->CalcularDemora());
-            
-            $payload = json_encode($msj);
-            $response->getBody()->write($payload); 
-
-            return $response;
-        }
-
         public function AgregarUnaFoto($request, $response, $args)
         {
             $files = $request->getUploadedFiles();   
