@@ -2,7 +2,7 @@
 
     require_once "./Objetos/Encuesta.php";
 
-    class ClienteController extends Encuesta // implements Icrud
+    class EncuestaController extends Encuesta // implements Icrud
     {
         public function CargarUno($request, $response, $args)
         {
@@ -27,29 +27,15 @@
             return $response;
         }
 
-        public function MejoresComentarios($request, $response, $args)
+        public function TraerMejoresComentarios($request, $response, $args)
         {
-            $tipo = $request->getAttribute('$tipo');
-            $lista = Encuesta::TraerEncuestas($tipo,5);
+            $lista = Encuesta::TraerEncuestas(Encuesta::TIPO_BUENA,3,5);
             $payload = json_encode(array("MejoresComentarios" => $lista));
 
             $response->getBody()->write($payload);
             return $response;
         }
 
-        public function TraerUnoCliente($request, $response, $args)
-        {
-            $pedido = $request->getAttribute('pedido');
-            $mesa = $request->getAttribute('mesa');
-                        
-            $msj = array("Nombre cliente" => $mesa->nombreCliente,
-                            "Tiempo demora" => $pedido->CalcularDemora());
-            
-            $payload = json_encode($msj);
-            $response->getBody()->write($payload); 
-
-            return $response;
-        }
     }
 
 ?>

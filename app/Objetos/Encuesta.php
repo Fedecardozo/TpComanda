@@ -45,10 +45,10 @@
             return $consulta->fetchObject("Encuesta");
         }
 
-        public static function TraerEncuestas($tipo,$estrellas)
+        public static function TraerEncuestas($tipo,$min,$max)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,mesa,restaurante,mozo,cocinero,estrellas,tipo,texto,codigo_pedido,codigo_mesa FROM encuestas WHERE tipo = '$tipo' AND estrellas <= '$estrellas' ");
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,mesa,restaurante,mozo,cocinero,estrellas,tipo,texto,codigo_pedido,codigo_mesa FROM encuestas WHERE tipo = '$tipo' AND estrellas >= '$min' AND estrellas <= '$max' ORDER BY estrellas DESC; ");
             $consulta->execute();
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Encuesta");
         }

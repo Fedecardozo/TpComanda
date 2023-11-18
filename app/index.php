@@ -21,7 +21,7 @@ require_once './Controller/UsuarioController.php';
 require_once './Controller/ProductoController.php';
 require_once './Controller/MesaController.php';
 require_once './Controller/PedidoController.php';
-require_once './Controller/ClienteController.php';
+require_once './Controller/EncuestaController.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -99,6 +99,12 @@ $app->group('/pedidos', function (RouteCollectorProxy $group)
     $group->get('[/]', \PedidoController::class . ':TraerTodos')
     ->add(\AuthMiddleware::class. ':VerificarSocio');//1
 
+    $group->get('/tiempoDemora', \PedidoController::class . ':TraerUnoCliente')
+    ->add(\ValidarMiddleware::class. ':VerificarClientePedido')//4
+    ->add(\ValidarMiddleware::class. ':VerificarMesa')//3
+    ->add(\ValidarMiddleware::class. ':ValidarClienteParams')//2
+    ->add(\ValidarMiddleware::class. ':IssetClientePedido');//1
+
     $group->get('/listarPendientes', \PedidoController::class . ':ListarPedidosPendientes')
     ->add(\AuthMiddleware::class. ':VerificarSectorPreparacion');//1
 
@@ -137,15 +143,13 @@ $app->group('/pedidos', function (RouteCollectorProxy $group)
 });
 
 //Clientes
-$app->group('/clientes', function(RouteCollectorProxy $group)
+$app->group('/encuestas', function(RouteCollectorProxy $group)
 {
-    $group->get('/tiempoDemora', \ClienteController::class . ':TraerUnoCliente')
-    ->add(\ValidarMiddleware::class. ':VerificarClientePedido')//4
-    ->add(\ValidarMiddleware::class. ':VerificarMesa')//3
-    ->add(\ValidarMiddleware::class. ':ValidarClienteParams')//2
-    ->add(\ValidarMiddleware::class. ':IssetClientePedido');//1
 
-    $group->post('[/]', \ClienteController::class . ':CargarUno')
+    $group->get('/mejoresComentarios', \EncuestaController::class . ':TraerMejoresComentarios')
+    ->add(\AuthMiddleware::class. ':VerificarSocio');
+
+    $group->post('[/]', \EncuestaController::class . ':CargarUno')
     ->add(\ValidarMiddleware::class. ':MesaEstadoPagando')//Validar estado de la mesa
     ->add(\ValidarMiddleware::class. ':VerficarEncuesta')//Validar que ya no tengan una encuesta
     ->add(\ValidarMiddleware::class. ':IsValidoPedidoMesa')//mesa y pedido coicidan sus codigos
@@ -155,7 +159,6 @@ $app->group('/clientes', function(RouteCollectorProxy $group)
     ->add(\ValidarMiddleware::class. ':IssetParamsEncuesta')//Que esten todos los campos setados
     ->add(\ValidarMiddleware::class. ':ValidarClienteParams')//Que los codigos sean validos
     ->add(\ValidarMiddleware::class. ':IssetClientePedido');//codigo_pedido y codigo_mesa
-
 
     //Listar (solo socios)
     //Mejores comentarios
