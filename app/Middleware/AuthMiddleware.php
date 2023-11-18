@@ -70,10 +70,10 @@ class AuthMiddleware
             AutentificadorJWT::verificarToken($token);
             $data = AutentificadorJWT::ObtenerData($token);
             $user= Usuario::TraerUnUsuarioPorNombreDni($data->dni,$data->nombre);
-            if($call($data))
+            if($call($data) && $user->estado == Usuario::ESTADO_ACTIVO)
             {
                 $request = $request->withAttribute('usuario', $user);
-                $response = $handler->handle($request);
+                $response = $handler->handle($request); 
             }
             else
                 throw new Exception("No es un usuario valido para realizar esta accion");     

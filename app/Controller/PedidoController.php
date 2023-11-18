@@ -76,6 +76,18 @@
             return $response;
         }
 
+        public function BorrarUno($request, $response, $args)
+        {
+            $pedido = $request->getAttribute('pedido');
+
+            $valid = Pedido::CambiarEstadoPedido($pedido->id,Pedido::ESTADO_CANCELADO);
+            $msj = $valid ? "Se cancelo con exito" : "No se pudo cancelar";
+            $payload = json_encode(array("mensaje" => $msj));
+
+            $response->getBody()->write($payload);
+            return $response;
+        }
+
         public function TraerUnoCliente($request, $response, $args)
         {
             $pedido = $request->getAttribute('pedido');

@@ -234,6 +234,11 @@
                     //Cambio estado pedido
                     Pedido::CambiarEstadoPedido($id_pedido,Pedido::ESTADO_LISTO);
                 }
+                else if(Detalle::VerificarPedidoCompleto($id_pedido,Pedido::ESTADO_CANCELADO))
+                {
+                    //Cambio estado pedido
+                    Pedido::CambiarEstadoPedido($id_pedido,Pedido::ESTADO_CANCELADO);
+                }
 
             }
 

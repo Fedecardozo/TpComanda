@@ -91,6 +91,72 @@
             return $response;
         }
 
+        //Pedido
+        public static function IssetCodigoPedido(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $parametros = $request->getParsedBody();
+
+            if(isset($parametros['codigo_pedido']))
+            {
+                $request = $request->withAttribute('codigo_pedido',$parametros['codigo_pedido']);
+                $response = $handler->handle($request); 
+            }
+            else
+            {
+                $msj = "Le falto el codigo del pedido";
+                $payload = json_encode(array("error" => $msj));
+                $response->getBody()->write($payload);  
+            }
+            
+            return $response;
+        }
+
+        //Verificar pedido
+        public static function IsPedido(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $codigo = $request->getAttribute('codigo_pedido');
+            $pedido = Pedido::TraerUnPedido($codigo);
+
+            if($pedido instanceof Pedido)
+            {
+                $request = $request->withAttribute('pedido',$pedido);
+                $response = $handler->handle($request); 
+            }
+            else
+            {
+                $msj = "El pedido no existe";
+                $payload = json_encode(array("error" => $msj));
+                $response->getBody()->write($payload);  
+            }
+            
+            return $response;
+        }
+
+        //Verificar estado pedido
+        public static function IsPedidoCancelado(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $pedido = $request->getAttribute('pedido');
+
+            if($pedido->estado === Pedido::ESTADO_LISTO ||
+               $pedido->estado === Pedido::ESTADO_PREPARACION)
+            {
+                $response = $handler->handle($request); 
+                //Despues de que se cancelo el pedido, hay que cancelar los detalles
+                Detalle::ModificarEstadoTodos($pedido->id,Pedido::ESTADO_CANCELADO);
+            }
+            else
+            {
+                $msj = "No se puede cancelar. El pedido ya fue ".$pedido->estado;
+                $payload = json_encode(array("error" => $msj));
+                $response->getBody()->write($payload);  
+            }
+            
+            return $response;
+        }
+
     }
 
 

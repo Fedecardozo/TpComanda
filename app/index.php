@@ -127,6 +127,12 @@ $app->group('/pedidos', function (RouteCollectorProxy $group)
     ->add(\ValidarMiddleware::class. ':ValidarUpdateDetalles') //2
     ->add(\AuthMiddleware::class. ':VerificarSectorPreparacion');//1
 
+     $group->delete('[/]', \PedidoController::class . ':BorrarUno')
+    ->add(\MiddlewareABM::class. ':IsPedidoCancelado') 
+    ->add(\MiddlewareABM::class. ':IsPedido') 
+    ->add(\MiddlewareABM::class. ':IssetCodigoPedido')
+    ->add(\AuthMiddleware::class. ':VerificarMozo');
+
     $group->put('/agregarDuracion', \PedidoController::class . ':AsignarDuracion')
     ->add(\ValidarMiddleware::class. ':ValidarDuracion')//3
     ->add(\ValidarMiddleware::class. ':ValidarUpdateDetalles') //2
