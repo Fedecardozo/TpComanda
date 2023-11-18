@@ -118,44 +118,7 @@
             }
     
         }
-        
-        public function CalcularTiempoEstimadoPedido()
-        {
-            //No es lo mismo que este un empleado a que esten 3 o más
-            $promedioTiempo = $this->TiempoPorSector/$this->Cantidad_Empleados;
 
-            //Obtengo la fecha actual
-            $fechaActual =  DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
-
-            //Creo el nuevo tiempo para el proximo pedido
-            $newTiempo = (int)$promedioTiempo;
-
-            //Array de pendientes
-            $ultimoPendiente = $this->PedidosPendientes;
-            if(!empty($ultimoPendiente)) // No esta vacio
-            {
-                //Ultimo pedido pendiente
-                $ultimoPendiente = end($ultimoPendiente);
-
-                //Como no esta vacio busco la fecha de entrega
-                $fechaEntrega = $ultimoPendiente->fechaEntrega;
-
-                //Formateo la fecha para que sea un objeto DateTime
-                $fechaEntrega = DateTime::createFromFormat('Y-m-d H:i:s', $fechaEntrega);
-
-                //Tiempo restante del ultimo pedido con la fecha actual
-                $tiempoRestante = ($fechaEntrega->diff($fechaActual))->format('%i');
-                
-                //Agrego a la fecha actual el promedio estimado
-                $fechaActual = $fechaEntrega;
-
-                //Creo el nuevo tiempo para el proximo pedido
-                $newTiempo += doubleval($tiempoRestante);
-            }
-            $strTime = '+'.$newTiempo.' minutes';
-            //Retorno la fecha de entrega estimada del pedido
-            return ($fechaActual->modify($strTime))->format('Y-m-d H:i:s');
-        }
 
     }
 

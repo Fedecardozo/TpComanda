@@ -16,12 +16,14 @@ require_once './Middleware/SetTimeMiddleware.php';
 require_once './Middleware/ValidarMiddleware.php';
 require_once './Middleware/AuthMiddleware.php';
 require_once './Middleware/MiddlewareABM.php';
+require_once './Middleware/FileMiddleware.php';
 require_once './BaseDatos/AccesoDatos.php';
 require_once './Controller/UsuarioController.php';
 require_once './Controller/ProductoController.php';
 require_once './Controller/MesaController.php';
 require_once './Controller/PedidoController.php';
 require_once './Controller/EncuestaController.php';
+require_once './Controller/FilesController.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -163,11 +165,17 @@ $app->group('/encuestas', function(RouteCollectorProxy $group)
     ->add(\ValidarMiddleware::class. ':ValidarClienteParams')//Que los codigos sean validos
     ->add(\ValidarMiddleware::class. ':IssetClientePedido');//codigo_pedido y codigo_mesa
 
-    //Listar (solo socios)
-    //Mejores comentarios
-
 });
 
+//CSV
+$app->group('/files', function(RouteCollectorProxy $group)
+{
+    $group->get('/descargar', \FilesController::class . ':DescargarCsv');
+    $group->post('[/]', \FilesController::class . ':CargarCsv');
+    $group->get('[/]', \FilesController::class . ':LeerCsv');
+})
+->add(\FileMiddleware::class. ':ValidarNombre')
+->add(\FileMiddleware::class. ':IssetNombre');
 
 // JWT en login
 $app->group('/auth', function (RouteCollectorProxy $group) 
