@@ -88,19 +88,15 @@ $app->group('/mesas', function (RouteCollectorProxy $group)
     ->add(\ValidarMiddleware::class. ':VerificarEstadosUpdateMesas') //3
     ->add(\ValidarMiddleware::class. ':IssetUpdateMesas') //2
     ->add(\AuthMiddleware::class. ':VerificarSocioOrMozo');//1
+
+    //Solo socios, listar mesa mas usada
+    //lo puedo hacer por pedido, donde se repita mas veces el mismo id de la mesa
 });
 
 $app->group('/pedidos', function (RouteCollectorProxy $group) 
 {
     $group->get('[/]', \PedidoController::class . ':TraerTodos')
     ->add(\AuthMiddleware::class. ':VerificarSocio');//1
-
-    //Cliente
-    $group->get('/clientePedido', \PedidoController::class . ':TraerUnoCliente')
-    ->add(\ValidarMiddleware::class. ':VerificarClientePedido')//4
-    ->add(\ValidarMiddleware::class. ':VerificarMesa')//3
-    ->add(\ValidarMiddleware::class. ':ValidarClienteParams')//2
-    ->add(\ValidarMiddleware::class. ':IssetClientePedido');//1
 
     $group->get('/listarPendientes', \PedidoController::class . ':ListarPedidosPendientes')
     ->add(\AuthMiddleware::class. ':VerificarSectorPreparacion');//1
@@ -138,6 +134,50 @@ $app->group('/pedidos', function (RouteCollectorProxy $group)
     ->add(\ValidarMiddleware::class. ':ValidarUpdateDetalles') //2
     ->add(\AuthMiddleware::class. ':VerificarSectorPreparacion');//1
 });
+
+//Clientes
+$app->group('/clientes', function(RouteCollectorProxy $group)
+{
+    $group->get('/tiempoDemora', \PedidoController::class . ':TraerUnoCliente')
+    ->add(\ValidarMiddleware::class. ':VerificarClientePedido')//4
+    ->add(\ValidarMiddleware::class. ':VerificarMesa')//3
+    ->add(\ValidarMiddleware::class. ':ValidarClienteParams')//2
+    ->add(\ValidarMiddleware::class. ':IssetClientePedido');//1
+
+    $group->get('/encuesta', \PedidoController::class . ':TraerUnoCliente')
+    ->add(\ValidarMiddleware::class. ':VerificarClientePedido')//4
+    ->add(\ValidarMiddleware::class. ':VerificarMesa')//3
+    ->add(\ValidarMiddleware::class. ':ValidarClienteParams')//2
+    ->add(\ValidarMiddleware::class. ':IssetClientePedido');//1
+
+    //Una clase encuesta
+    //puntuacion 1 a 10
+    //-mesa
+    //-restaurante
+    //-mozo
+    //-cocinero
+    //-estrellas //hasta 5
+    //-tipo //buena o mala
+    //-texto //66 caracteres
+    //-codigo_pedido
+    //-codigo_mesa
+
+    //Hacer un controllercliente
+    //Pasar el traer un cliente
+    //Guardar encuesta en la base de datos
+    
+    //Validar
+    //Parametros(isset)
+    //puntuacion
+    //tipo
+    //texto <= 66 caracteres
+    //mesa y pedido coicidan
+
+    //Listar (solo socios)
+    //Mejores comentarios
+
+});
+
 
 // JWT en login
 $app->group('/auth', function (RouteCollectorProxy $group) 
