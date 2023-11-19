@@ -26,6 +26,18 @@
             return $objetoAccesoDato->RetornarUltimoIdInsertado();
         }
 
+        public function CrearProductoConId()
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("INSERT into productos (id,nombre,tipo,precio) values(:id,:nombre,:tipo,:precio)");
+            $consulta->bindValue(":nombre",$this->nombre,PDO::PARAM_STR);
+            $consulta->bindValue(":tipo",$this->tipo,PDO::PARAM_STR);
+            $consulta->bindValue(":precio",$this->precio);
+            $consulta->bindValue(":id",$this->id,PDO::PARAM_INT);
+            $consulta->execute();
+            return $objetoAccesoDato->RetornarUltimoIdInsertado();
+        }
+
         public static function TraerProductos()
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
@@ -84,10 +96,11 @@
                 self::VaciarProductos();//vacio la tabla
                 while (($fila = fgetcsv($archivo,1000,',')) !== FALSE) 
                 {
+                    $producto->id = $fila[0];
                     $producto->nombre = $fila[1];
                     $producto->tipo = $fila[2];
                     $producto->precio = $fila[3];
-                    $producto->CrearProducto();
+                    $producto->CrearProductoConId();
                 }
                 fclose($archivo);
             }

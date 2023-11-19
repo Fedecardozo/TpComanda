@@ -87,10 +87,42 @@
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Pedido");
         }
 
-        public static function TraerUnPedido($codigo)
+        /*public static function TraerUnPedido($codigo)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
             $consulta = $objetoAccesoDato->RetornarConsulta("SELECT id,id_usuario,id_mesa, codigo, estado, fechaInicio,fechaEntrega,destino as imagen FROM pedidos WHERE codigo = :codigo");
+            $consulta->bindValue(':codigo',$codigo,PDO::PARAM_STR);
+            $consulta->execute();
+            return $consulta->fetchObject("Pedido");
+        }*/
+
+        public static function TraerUnPedido($codigo)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT
+            pedidos.id,
+            pedidos.id_usuario,
+            pedidos.id_mesa, 
+            pedidos.codigo, 
+            pedidos.estado, 
+            pedidos.fechaInicio,
+            pedidos.fechaEntrega,
+            pedidos.destino as imagen, 
+            IFNULL(MAX(detalles.duracion), 0) AS 'tiempoDemora' 
+            FROM
+            pedidos
+            LEFT JOIN
+            detalles ON pedidos.id = detalles.id_pedido 
+            WHERE pedidos.codigo = '$codigo'
+            GROUP BY
+            pedidos.id,
+            pedidos.id_usuario,
+            pedidos.id_mesa, 
+            pedidos.codigo, 
+            pedidos.estado, 
+            pedidos.fechaInicio,
+            pedidos.fechaEntrega,
+            pedidos.destino;");
             $consulta->bindValue(':codigo',$codigo,PDO::PARAM_STR);
             $consulta->execute();
             return $consulta->fetchObject("Pedido");

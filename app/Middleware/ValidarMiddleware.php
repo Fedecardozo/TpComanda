@@ -636,14 +636,15 @@
             $response = new Response();
             $mesa = $request->getAttribute('mesa');
 
-            if($mesa->estado === Mesa::ESTADO_PAGANDO)
-            {
-                $response = $handler->handle($request);
-            }
-            else
+            if($mesa->estado === Mesa::ESTADO_ESPERANDO ||
+               $mesa->estado === Mesa::ESTADO_COMIENDO)
             {
                 $payload = json_encode(array("error" => "Todavia no termino de comer"));
                 $response->getBody()->write($payload); 
+            }
+            else
+            {
+                $response = $handler->handle($request);
             }
 
             return $response;

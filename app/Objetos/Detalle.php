@@ -47,6 +47,7 @@
             $consulta = $objetoAccesoDato->RetornarConsulta("SELECT 
             sector.nombre_sector AS 'Sector',
             productos.nombre AS 'Producto',
+            detalles.id,
             detalles.cantidad,
             detalles.duracion,
             pedidos.fechaInicio,
