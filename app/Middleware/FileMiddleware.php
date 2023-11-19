@@ -6,7 +6,7 @@
 
     class FileMiddleware
     {
-        //Encuesta,mesa,pedido,producto,usuario
+        /*//Encuesta,mesa,pedido,producto,usuario
         public static function IssetNombre(Request $request, RequestHandler $handler)
         {
             $response = new Response();
@@ -35,30 +35,50 @@
             
 
             return $response;
-        }
+        }*/
 
-        public static function ValidarNombre(Request $request, RequestHandler $handler)
+        public static function ValidarArchivo(Request $request, RequestHandler $handler)
         {
             $response = new Response();
-            $nombre = $request->getAttribute('nombre');
+            $destino = "./ArchivoCsv/productos.csv";
+            $request = $request->withAttribute('destino',$destino);
+            $files = $request->getUploadedFiles();   
             
-            if($nombre === 'encuestas' || $nombre === 'mesas' || $nombre === 'pedidos' || $nombre === 'productos' || $nombre === 'usuarios')
+            if(isset($files['csv']))
             {
-                $destino = "./ArchivoCsv/$nombre.csv";
-                $request = $request->withAttribute('destino',$destino);
+                $request = $request->withAttribute('archivo',$files['csv']);
                 $response = $handler->handle($request);
             }   
             else
             {
-                $msj = "Nombre del archivo invalido";
+                $msj = "error falta el archivo";
                 $payload = json_encode(array("mensaje" => $msj));
                 $response->getBody()->write($payload);  
             }
             
-
             return $response;
         }
 
+        public static function ValidarTipoArchivo(Request $request, RequestHandler $handler)
+        {
+            $response = new Response();
+            $archivo = $request->getAttribute('archivo');
+            $type = $archivo->getClientMediaType();
+            $tipoCsv = explode('/',$type)[1];
+
+            if($tipoCsv === 'csv')
+            {
+                $response = $handler->handle($request);
+            }   
+            else
+            {
+                $msj = "No es un archivo valido";
+                $payload = json_encode(array("mensaje" => $msj));
+                $response->getBody()->write($payload);  
+            }
+            
+            return $response;
+        }
     }
 
 

@@ -170,12 +170,11 @@ $app->group('/encuestas', function(RouteCollectorProxy $group)
 //CSV
 $app->group('/files', function(RouteCollectorProxy $group)
 {
-    $group->get('/descargar', \FilesController::class . ':DescargarCsv');
-    $group->post('[/]', \FilesController::class . ':CargarCsv');
-    $group->get('[/]', \FilesController::class . ':LeerCsv');
-})
-->add(\FileMiddleware::class. ':ValidarNombre')
-->add(\FileMiddleware::class. ':IssetNombre');
+    $group->get('[/]', \FilesController::class . ':DescargarCsv');
+    $group->post('[/]', \FilesController::class . ':CargarCsv')
+    ->add(\FileMiddleware::class. ':ValidarTipoArchivo')
+    ->add(\FileMiddleware::class. ':ValidarArchivo');
+});
 
 // JWT en login
 $app->group('/auth', function (RouteCollectorProxy $group) 

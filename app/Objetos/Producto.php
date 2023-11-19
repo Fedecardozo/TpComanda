@@ -34,6 +34,14 @@
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Producto");
         }
 
+        public static function VaciarProductos()
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("TRUNCATE productos");
+            $consulta->execute();
+            return $consulta->fetchAll(PDO::FETCH_CLASS, "Producto");
+        }
+
         public static function TraerUnProducto($id)
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
@@ -64,6 +72,39 @@
                     }
                     break;
             }
+        }
+
+        public static function CargarCsv($destino)
+        {
+            // $destino = "./ArchivoCsv/productos.csv";
+            $producto = new Producto();
+            if(file_exists($destino) &&
+             ($archivo = fopen($destino,"r")) !== FALSE)
+            {
+                self::VaciarProductos();//vacio la tabla
+                while (($fila = fgetcsv($archivo,1000,',')) !== FALSE) 
+                {
+                    $producto->nombre = $fila[1];
+                    $producto->tipo = $fila[2];
+                    $producto->precio = $fila[3];
+                    $producto->CrearProducto();
+                }
+                fclose($archivo);
+            }
+        }
+
+        public static function ConvertirCsv($destino)
+        {
+            // $destino = "./ArchivoCsv/productos.csv";
+            $productos = self::TraerProductos();
+           
+            $archivo = fopen($destino,'w+');
+            foreach ($productos as $value) 
+            {
+                fputcsv($archivo,[$value->id,$value->nombre,$value->tipo,$value->precio]);
+            }
+            fclose($archivo);
+
         }
 
     }
