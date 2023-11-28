@@ -40,9 +40,8 @@
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Detalle");
         }
 
-        public static function TraerDetallesPorEstado($id_sector,$estado,$null = true)
+        public static function TraerDetallesPorEstadoNull($id_sector)
         {
-            $nulo = $null ? 'IS NULL':'IS NOT NULL';
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
             $consulta = $objetoAccesoDato->RetornarConsulta("SELECT 
             sector.nombre_sector AS 'Sector',
@@ -54,7 +53,29 @@
             detalles.estado 
             FROM detalles,productos,pedidos,sector 
             WHERE id_sector = '$id_sector' 
-            AND (detalles.estado = '$estado' OR detalles.estado $nulo) 
+            AND detalles.estado IS NULL
+            AND detalles.id_producto = productos.id 
+            AND detalles.id_pedido = pedidos.id 
+            AND sector.id = detalles.id_sector;");
+            // $consulta->bindValue(':estado', $estado,PDO::PARAM_STR);
+            $consulta->execute();
+            return $consulta->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        public static function TraerDetallesPorEstado($id_sector,$estado)
+        {
+            $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+            $consulta = $objetoAccesoDato->RetornarConsulta("SELECT 
+            sector.nombre_sector AS 'Sector',
+            productos.nombre AS 'Producto',
+            detalles.id,
+            detalles.cantidad,
+            detalles.duracion,
+            pedidos.fechaInicio,
+            detalles.estado 
+            FROM detalles,productos,pedidos,sector 
+            WHERE id_sector = '$id_sector' 
+            AND detalles.estado = '$estado'
             AND detalles.id_producto = productos.id 
             AND detalles.id_pedido = pedidos.id 
             AND sector.id = detalles.id_sector;");

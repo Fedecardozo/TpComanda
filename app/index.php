@@ -110,7 +110,7 @@ $app->group('/pedidos', function (RouteCollectorProxy $group)
     ->add(\ValidarMiddleware::class. ':ValidarClienteParams')//2
     ->add(\ValidarMiddleware::class. ':IssetClientePedido');//1
 
-    $group->get('/listarPendientes', \PedidoController::class . ':ListarPedidosPendientes')
+    $group->get('/listarPendientes/{bool}', \PedidoController::class . ':ListarPedidosPendientes')
     ->add(\AuthMiddleware::class. ':VerificarSectorPreparacion');//1
 
     $group->get('/listarParaServir', \PedidoController::class . ':ListarPedidosListos')
