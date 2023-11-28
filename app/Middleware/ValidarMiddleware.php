@@ -295,26 +295,41 @@
 
             if($mesa instanceof Mesa)
             {
-                if(($usuario->puesto === Usuario::PUESTO_MOZO &&
-                    ($mesa->estado === Mesa::ESTADO_COMIENDO && $estado != Mesa::ESTADO_PAGANDO )||($mesa->estado === Mesa::ESTADO_ESPERANDO && $estado != Mesa::ESTADO_COMIENDO)
-                    || ($mesa->estado === Mesa::ESTADO_PAGANDO && $estado ===Mesa::ESTADO_PAGANDO)) 
-                                        || 
-                    ($usuario->puesto === Usuario::PUESTO_SOCIO && 
-                     $estado != Mesa::ESTADO_CERRADA ||
-                    ($mesa->estado === Mesa::ESTADO_CERRADA && $estado === Mesa::ESTADO_CERRADA)))
+                $esperando = Mesa::ESTADO_ESPERANDO;
+                $comiendo = Mesa::ESTADO_COMIENDO;
+                $pagando = Mesa::ESTADO_PAGANDO;
+                $cerrada = Mesa::ESTADO_CERRADA;
+                
+                if($usuario->puesto === Usuario::PUESTO_MOZO && $estado != $cerrada)
                 {
-                    $msj = "No se puede cambiar el estado de ".$mesa->estado." a ".$estado;
+                    if(($mesa->estado === $comiendo && $estado === $pagando)
+                    ||($mesa->estado === $esperando && $estado === $comiendo))
+                    {
+                       $request = $request->withAttribute('mesa',$mesa);
+                       $response = $handler->handle($request);//ok 
+                    }
+                    else
+                        $msj = "No se puede cambiar el estado de ".$mesa->estado." a ".$estado;
+                }
+                else if($usuario->puesto === Usuario::PUESTO_SOCIO && $estado === $cerrada)
+                {
+                    if($mesa->estado === $pagando)
+                    {
+                        $request = $request->withAttribute('mesa',$mesa);
+                        $response = $handler->handle($request);//ok 
+                    }
+                    else
+                        $msj = "No se puede cambiar el estado de ".$mesa->estado." a ".$estado;
                 }
                 else
                 {
-                    $request = $request->withAttribute('mesa',$mesa);
-                    $response = $handler->handle($request);//ok
+                    $msj = "No tiene autorizacion para modificar con ese estado";
                 }
+            
             }
-            else
-            {
-                $msj = "No tiene autorizacion para modificar con ese estado";
-            }
+            else    
+                $msj = "No se encontro la mesa";
+            
 
             if(isset($msj))
             {

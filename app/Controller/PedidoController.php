@@ -140,7 +140,7 @@
             $usuario = $request->getAttribute('usuario');
             $id_sector = $usuario->IdSector;
 
-            $msj = Detalle::TraerDetallesPorEstado($id_sector,Pedido::ESTADO_PREPARACION,false);
+            $msj = Detalle::TraerDetallesPorEstado($id_sector,Pedido::ESTADO_PREPARACION);
 
             $msj = count($msj) ? $msj : array("mensaje"=>"No hay pendientes");                  
 

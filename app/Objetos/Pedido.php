@@ -123,7 +123,7 @@
             pedidos.fechaInicio,
             pedidos.fechaEntrega,
             pedidos.destino;");
-            $consulta->bindValue(':codigo',$codigo,PDO::PARAM_STR);
+            // $consulta->bindValue(':codigo',$codigo,PDO::PARAM_STR);
             $consulta->execute();
             return $consulta->fetchObject("Pedido");
         }
@@ -159,7 +159,7 @@
         {
             $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
             $consulta = $objetoAccesoDato->RetornarConsulta("UPDATE pedidos SET imagen = :imagen, destino = :destino WHERE codigo = :codigo");
-            $consulta->bindValue(':codigo', $codigo, PDO::PARAM_INT);
+            $consulta->bindValue(':codigo', $codigo, PDO::PARAM_STR);
             $consulta->bindValue(':imagen', $imagen, PDO::PARAM_LOB);
             $consulta->bindValue(':destino', $destino, PDO::PARAM_STR);
             $consulta->execute();

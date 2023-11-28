@@ -54,11 +54,11 @@
             detalles.estado 
             FROM detalles,productos,pedidos,sector 
             WHERE id_sector = '$id_sector' 
-            AND (detalles.estado = ':estado' OR detalles.estado $nulo) 
+            AND (detalles.estado = '$estado' OR detalles.estado $nulo) 
             AND detalles.id_producto = productos.id 
             AND detalles.id_pedido = pedidos.id 
             AND sector.id = detalles.id_sector;");
-            $consulta->bindValue(':estado', $estado,PDO::PARAM_STR);
+            // $consulta->bindValue(':estado', $estado,PDO::PARAM_STR);
             $consulta->execute();
             return $consulta->fetchAll(PDO::FETCH_ASSOC);
         }
