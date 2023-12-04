@@ -17,6 +17,7 @@ require_once './Middleware/ValidarMiddleware.php';
 require_once './Middleware/AuthMiddleware.php';
 require_once './Middleware/MiddlewareABM.php';
 require_once './Middleware/FileMiddleware.php';
+require_once './Middleware/LoggerMiddleware.php';
 require_once './BaseDatos/AccesoDatos.php';
 require_once './Controller/UsuarioController.php';
 require_once './Controller/ProductoController.php';
@@ -24,6 +25,7 @@ require_once './Controller/MesaController.php';
 require_once './Controller/PedidoController.php';
 require_once './Controller/EncuestaController.php';
 require_once './Controller/FilesController.php';
+require_once './Controller/LoggerController.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -49,27 +51,30 @@ $app->add(\ValidarMiddleware::class. ':ReturnContentJson');
 // Routes
 $app->group('/usuarios', function (RouteCollectorProxy $group) 
 {
-    $group->get('[/]', \UsuarioController::class . ':TraerTodos');
+    $group->get('[/]', \UsuarioController::class . ':TraerTodos')
+    ->add(\AuthMiddleware::class. ':VerificarSocioAdmin');//1;
 
     //ABM
     //Alta solo socio
     $group->post('[/]', \UsuarioController::class . ':CargarUno')
-    ->add(\MiddlewareABM::class. ':IssetParametrosUsuario');
+    ->add(\MiddlewareABM::class. ':IssetParametrosUsuario')
+    ->add(\AuthMiddleware::class. ':VerificarSocio');//1;
     
     //Baja solo socio
     $group->delete('[/]', \UsuarioController::class . ':BorrarUno')
     ->add(\MiddlewareABM::class. ':UsuarioIsActivo')
     ->add(\MiddlewareABM::class. ':IsUsuario')
-    ->add(\MiddlewareABM::class. ':IssetParametrosIdUsuario');
+    ->add(\MiddlewareABM::class. ':IssetParametrosIdUsuario')
+    ->add(\AuthMiddleware::class. ':VerificarSocio');//1;
     
     //Modificacion solo socio
     $group->put('[/]', \UsuarioController::class . ':ModificarUno')
     ->add(\MiddlewareABM::class. ':IsUsuario')
     ->add(\MiddlewareABM::class. ':IssetParametrosUsuario')
-    ->add(\MiddlewareABM::class. ':IssetParametrosIdUsuario');
-
+    ->add(\MiddlewareABM::class. ':IssetParametrosIdUsuario')
+    ->add(\AuthMiddleware::class. ':VerificarSocio');//1;
     
-})->add(\AuthMiddleware::class. ':VerificarSocio');//1
+});
 
 $app->group('/productos', function (RouteCollectorProxy $group) 
 {
@@ -93,6 +98,7 @@ $app->group('/mesas', function (RouteCollectorProxy $group)
     ->add(\ValidarMiddleware::class. ':AccionEstadosUpdateMesas') //4
     ->add(\ValidarMiddleware::class. ':VerificarEstadosUpdateMesas') //3
     ->add(\ValidarMiddleware::class. ':IssetUpdateMesas') //2
+    ->add(new LoggerMiddleware())
     ->add(\AuthMiddleware::class. ':VerificarSocioOrMozo');//1
 
     //Solo socios, listar mesa mas usada
@@ -110,40 +116,49 @@ $app->group('/pedidos', function (RouteCollectorProxy $group)
     ->add(\ValidarMiddleware::class. ':ValidarClienteParams')//2
     ->add(\ValidarMiddleware::class. ':IssetClientePedido');//1
 
+    //Agrega logger
     $group->get('/listarPendientes/{bool}', \PedidoController::class . ':ListarPedidosPendientes')
+    ->add(new LoggerMiddleware())
     ->add(\AuthMiddleware::class. ':VerificarSectorPreparacion');//1
 
     $group->get('/listarParaServir', \PedidoController::class . ':ListarPedidosListos')
+    ->add(new LoggerMiddleware())
     ->add(\AuthMiddleware::class. ':VerificarMozo');//1
 
     $group->get('/listarDetallesListos', \PedidoController::class . ':ListarDetallesListos')
+    ->add(new LoggerMiddleware())
     ->add(\AuthMiddleware::class. ':VerificarMozo');//1
     
     $group->post('[/]', \PedidoController::class . ':CargarUno')
     ->add(\ValidarMiddleware::class. ':VerificarParametrosPedido') //3
     ->add(\ValidarMiddleware::class. ':IssetParametrosPedido') //2
+    ->add(new LoggerMiddleware())
     ->add(\AuthMiddleware::class. ':VerificarMozo'); //1
     
     $group->post('/agregarFoto', \PedidoController::class . ':AgregarUnaFoto')
     ->add(\ValidarMiddleware::class. ':VerificarPedidoImagen')//4;
     ->add(\ValidarMiddleware::class. ':VerificarPedido')//3;
     ->add(\ValidarMiddleware::class. ':IssetUpdateFotoPedido')//2;
+    ->add(new LoggerMiddleware())
     ->add(\AuthMiddleware::class. ':VerificarMozo');//1;
 
     $group->put('/cambiarEstado', \PedidoController::class . ':CambiarEstadoDetalle')
     ->add(\ValidarMiddleware::class. ':ValidarEstadoPedido') //3
     ->add(\ValidarMiddleware::class. ':ValidarUpdateDetalles') //2
+    ->add(new LoggerMiddleware())
     ->add(\AuthMiddleware::class. ':VerificarSectorPreparacion');//1
 
      $group->delete('[/]', \PedidoController::class . ':BorrarUno')
     ->add(\MiddlewareABM::class. ':IsPedidoCancelado') 
     ->add(\MiddlewareABM::class. ':IsPedido') 
     ->add(\MiddlewareABM::class. ':IssetCodigoPedido')
+    ->add(new LoggerMiddleware())
     ->add(\AuthMiddleware::class. ':VerificarMozo');
 
     $group->put('/agregarDuracion', \PedidoController::class . ':AsignarDuracion')
     ->add(\ValidarMiddleware::class. ':ValidarDuracion')//3
     ->add(\ValidarMiddleware::class. ':ValidarUpdateDetalles') //2
+    ->add(new LoggerMiddleware())
     ->add(\AuthMiddleware::class. ':VerificarSectorPreparacion');//1
 });
 
@@ -174,6 +189,8 @@ $app->group('/files', function(RouteCollectorProxy $group)
     $group->post('[/]', \FilesController::class . ':CargarCsv')
     ->add(\FileMiddleware::class. ':ValidarTipoArchivo')
     ->add(\FileMiddleware::class. ':ValidarArchivo');
+
+    $group->get('/pdf', \FilesController::class . ':DescargarPdf');
 });
 
 // JWT en login
@@ -183,5 +200,12 @@ $app->group('/auth', function (RouteCollectorProxy $group)
     ->add(\AuthMiddleware::class. ':VerificarLogin');
 
 });
+
+//LOGS
+$app->group("/logs",function(RouteCollectorProxy $group)
+{
+    $group->get('[/]',\LoggerController::class. ':TraerTodos');
+});
+
 
 $app->run();

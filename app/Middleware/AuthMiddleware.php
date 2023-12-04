@@ -73,6 +73,7 @@ class AuthMiddleware
             if($call($data) && $user->estado == Usuario::ESTADO_ACTIVO)
             {
                 $request = $request->withAttribute('usuario', $user);
+                $request = $request->withAttribute('idUsuario', $user->id);
                 $response = $handler->handle($request); 
             }
             else
@@ -100,6 +101,13 @@ class AuthMiddleware
     {
         return self::Verificar($request,$handler,function($data){
             return $data->puesto === Usuario::PUESTO_SOCIO;   
+        });
+    }
+
+    public static function VerificarSocioAdmin(Request $request, RequestHandler $handler)
+    {
+        return self::Verificar($request,$handler,function($data){
+            return $data->puesto === Usuario::PUESTO_SOCIO || $data->puesto === Usuario::PUESTO_ADMIN;   
         });
     }
 
