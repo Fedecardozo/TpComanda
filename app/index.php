@@ -190,7 +190,8 @@ $app->group('/files', function(RouteCollectorProxy $group)
     ->add(\FileMiddleware::class. ':ValidarTipoArchivo')
     ->add(\FileMiddleware::class. ':ValidarArchivo');
 
-    $group->get('/pdf', \FilesController::class . ':DescargarPdf');
+    $group->get('/pdf', \FilesController::class . ':DescargarPdf')
+    ->add(\AuthMiddleware::class. ':VerificarSocio');
 });
 
 // JWT en login
